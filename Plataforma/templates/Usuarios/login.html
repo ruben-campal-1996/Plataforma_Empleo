@@ -5,32 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
+    {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
     <div class="top-bar">
-        <a href="{% url 'index' %}" class="btn btn-secondary">Volver</a>
+        <a href="{% url 'usuarios:index' %}" class="btn btn-secondary">Volver</a>
     </div>
     <div class="container">
-        <h1>Iniciar Sesión</h1>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="username_or_email">Nombre o Correo:</label>
-                <input type="text" id="username_or_email" name="username_or_email" class="form-control" required>
+        <div class="login-container">
+            <div class="login-header">
+                <i class="bi bi-person login-icon"></i> <!-- Icono de monigote -->
+                <h1>Iniciar Sesión</h1>
             </div>
-            <div class="form-group">
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-        </form>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username_or_email">Correo:</label>
+                    <input type="text" id="username_or_email" name="username_or_email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+        </div>
     </div>
     {% bootstrap_javascript %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </body>
 </html>

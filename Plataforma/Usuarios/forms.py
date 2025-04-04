@@ -2,11 +2,18 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import Usuario
 
-
 class UsuarioCreationForm(UserCreationForm):
+    ROL_CHOICES = [
+        ('Administrador', 'Administrador'),
+        ('Colaborador', 'Colaborador'),
+        # Añade más roles si los tienes en tu modelo
+    ]
+    
+    rol = forms.ChoiceField(choices=ROL_CHOICES, label="Rol del usuario", required=True)
+
     class Meta:
         model = Usuario
-        fields = ('nombre', 'correo', 'telefono', 'password1', 'password2')  # Añadimos 'telefono'
+        fields = ('nombre', 'correo', 'telefono', 'password1', 'password2', 'rol')  # Añadimos 'rol'
         labels = {
             'nombre': 'Nombre completo',
             'correo': 'Correo electrónico',
@@ -25,7 +32,7 @@ class UsuarioCreationForm(UserCreationForm):
 class UsuarioChangeForm(UserChangeForm):
     class Meta:
         model = Usuario
-        fields = ('nombre', 'correo', 'telefono', 'rol', 'is_active', 'is_staff', 'is_superuser')  # Añadimos 'telefono'
+        fields = ('nombre', 'correo', 'telefono', 'rol', 'is_active', 'is_staff', 'is_superuser')
         labels = {
             'nombre': 'Nombre completo',
             'correo': 'Correo electrónico',

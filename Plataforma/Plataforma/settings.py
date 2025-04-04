@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -62,7 +63,7 @@ ROOT_URLCONF = 'Plataforma.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'Templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -120,6 +121,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',  # Carpeta static en la raíz del proyecto
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Para collectstatic en producción
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Opcional: Si usas DEBUG = False en producción, configura esto también
 # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'

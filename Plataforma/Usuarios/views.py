@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UsuarioCreationForm
+from .models import Usuario
 
 User = get_user_model()
 
@@ -51,25 +52,56 @@ def logout_view(request):
     logout(request)
     return redirect('usuarios:index')  # /index/
 
+
 @login_required
-@user_passes_test(is_admin)
 def gestion_usuarios(request):
-    usuarios = User.objects.all()
+    usuarios = Usuario.objects.all()
+    create_form = UsuarioCreationForm()
+    roles = Usuario._meta.get_field('rol').choices
+
     if request.method == 'POST':
         action = request.POST.get('action')
+        
         if action == 'create':
             form = UsuarioCreationForm(request.POST)
             if form.is_valid():
-                form.save()
-                messages.success(request, 'Usuario creado.')
+                user = form.save(commit=False)
+                user.save()
+                rol = request.POST.get('rol')
+                if rol in dict(roles):
+                    usuario = Usuario.objects.get(correo=user.correo)
+                    usuario.rol = rol
+                    usuario.save()
+                messages.success(request, 'Usuario creado exitosamente.')
             else:
-                messages.error(request, 'Error al crear.')
+                # Mostrar errores específicos del formulario
+                messages.error(request, f'Error al crear el usuario: {form.errors.as_text()}')
+            return redirect('usuarios:gestion_usuarios')
+        
+        elif action == 'edit':
+            user_id = request.POST.get('user_id')
+            usuario = Usuario.objects.get(id_usuario=user_id)
+            usuario.nombre = request.POST.get('nombre')
+            usuario.correo = request.POST.get('correo')
+            usuario.rol = request.POST.get('rol')
+            if request.POST.get('password1'):
+                usuario.set_password(request.POST.get('password1'))
+            usuario.save()
+            messages.success(request, 'Usuario actualizado exitosamente.')
+            return redirect('usuarios:gestion_usuarios')
+        
         elif action == 'delete':
             user_id = request.POST.get('user_id')
-            User.objects.get(id=user_id).delete()
-            messages.success(request, 'Usuario eliminado.')
-        else:
-            messages.error(request, 'Acción no válida.')
-        return redirect('usuarios:gestion_usuarios')  # /index/gestion_usuarios/
-    form = UsuarioCreationForm()
-    return render(request, 'usuarios/gestion_usuarios.html', {'usuarios': usuarios, 'form': form})
+            try:
+                usuario = Usuario.objects.get(id_usuario=user_id)
+                usuario.delete()
+                messages.success(request, 'Usuario eliminado exitosamente.')
+            except Usuario.DoesNotExist:
+                messages.error(request, 'El usuario no existe.')
+            return redirect('usuarios:gestion_usuarios')
+
+    return render(request, 'usuarios/gestion_usuarios.html', {
+        'usuarios': usuarios,
+        'create_form': create_form,
+        'roles': roles,
+    })
