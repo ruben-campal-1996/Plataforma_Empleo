@@ -65,16 +65,9 @@ def gestion_usuarios(request):
         if action == 'create':
             form = UsuarioCreationForm(request.POST)
             if form.is_valid():
-                user = form.save(commit=False)
-                user.save()
-                rol = request.POST.get('rol')
-                if rol in dict(roles):
-                    usuario = Usuario.objects.get(correo=user.correo)
-                    usuario.rol = rol
-                    usuario.save()
+                user = form.save()  # Guarda todos los campos, incluido 'rol'
                 messages.success(request, 'Usuario creado exitosamente.')
             else:
-                # Mostrar errores específicos del formulario
                 messages.error(request, f'Error al crear el usuario: {form.errors.as_text()}')
             return redirect('usuarios:gestion_usuarios')
         

@@ -6,6 +6,7 @@ class UsuarioCreationForm(UserCreationForm):
     ROL_CHOICES = [
         ('Administrador', 'Administrador'),
         ('Colaborador', 'Colaborador'),
+        ('Gestor de Proyectos', 'Gestor de Proyectos'),
         # Añade más roles si los tienes en tu modelo
     ]
     
