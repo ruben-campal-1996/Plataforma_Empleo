@@ -39,21 +39,23 @@
             <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
 
-        <!-- Mostrar los resultados si hay -->
+        <!-- Resultados -->
         {% if jobs %}
-    <div class="jobs-container">
-        <h2>Resultados de búsqueda</h2>
-        <p>¡Contenedor de prueba!</p>
-        {% for job in jobs %}
-            <div class="job-item">
-                <p>{{ job.title }}</p>
+            <div class="jobs-container">
+                <h2>Resultados de búsqueda</h2>
+                {% for job in jobs %}
+                    <div class="job-item">
+                        <h3><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></h3>
+                        <p><strong>Ubicación:</strong> {{ job.location }}</p>
+                        <p><strong>Salario:</strong> {{ job.salary }}</p>
+                        <p><strong>Descripción:</strong> {{ job.description }}</p>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        {% elif error %}
+            <p class="alert error">{{ error }}</p>
+        {% endif %}
     </div>
-    {% elif error %}
-        <p class="alert error">{{ error }}</p>
-    {% endif %}
-</div>
 
     {% bootstrap_javascript %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

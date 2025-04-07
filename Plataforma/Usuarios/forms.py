@@ -7,7 +7,6 @@ class UsuarioCreationForm(UserCreationForm):
         ('Administrador', 'Administrador'),
         ('Colaborador', 'Colaborador'),
         ('Gestor de Proyectos', 'Gestor de Proyectos'),
-        # Añade más roles si los tienes en tu modelo
     ]
     
     rol = forms.ChoiceField(choices=ROL_CHOICES, label="Rol del usuario", required=True)

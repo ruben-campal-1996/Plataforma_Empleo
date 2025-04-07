@@ -355,6 +355,22 @@ body {
     text-align: center;
 }
 
+.job-item h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+}
+.job-item h3 a {
+    color: #007bff;
+    text-decoration: none;
+}
+.job-item h3 a:hover {
+    text-decoration: underline;
+}
+.job-item p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
 /* Responsividad */
 @media (max-width: 768px) {
     .jobs-container {
