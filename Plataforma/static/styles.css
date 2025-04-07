@@ -326,3 +326,41 @@ body {
         font-size: 14px;
     }
 }
+
+.jobs-container {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para cada oferta */
+.job-item {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Título dentro del contenedor */
+.jobs-container h2 {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .jobs-container {
+        width: 90%;
+    }
+    .job-item {
+        font-size: 14px;
+    }
+}

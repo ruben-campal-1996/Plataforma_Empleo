@@ -12,7 +12,7 @@ urlpatterns = [
     #path('proyectos/', include('Proyectos.urls')),  # URLs de la aplicación Proyectos
     #path('integracion_datos/', include('Integracion_datos.urls')),  # URLs de la aplicación Integracion_datos
     #path('recomendacion_ia/', include('Recomendacion_IA.urls')),  # URLs de la aplicación Recomendacion_IA
-    #path('analisis_mercado/', include('Analisis_mercado.urls')),  # URLs de la aplicación Analisis_mercado
+    path('analisis_mercado/', include('Analisis_mercado.urls')),  # URLs de la aplicación Analisis_mercado
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
