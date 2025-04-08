@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import random
-from urllib.parse import urljoin  # Para manejar URLs de forma más segura
+from urllib.parse import urljoin
 
 @login_required
 def index(request):
@@ -21,19 +21,24 @@ def index(request):
 def buscar_trabajos(request):
     jobs = []
     error = None
-    base_url = "https://www.infojobs.net"  # Definir base URL
+    base_url = "https://www.infojobs.net"
 
     if request.method == 'GET':
         keywords = request.GET.get('q', '')
+        province = request.GET.get('provincia', '0')
         print(f"Palabra clave recibida: {keywords}")
+        print(f"Provincia recibida: {province}")
 
         if keywords:
             # Configurar Selenium
             options = Options()
-            options.headless = True
+            options.headless = False  # Visible para depurar
             options.add_argument("--no-sandbox")
             options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_argument("window-size=1920,1080")
+            options.add_argument("--ignore-certificate-errors")
+            options.add_argument("--disable-gpu")
             user_agents = [
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
@@ -49,31 +54,61 @@ def buscar_trabajos(request):
                 return render(request, 'Usuarios/index.html', {'jobs': jobs, 'error': error})
 
             try:
-                # URL de búsqueda
-                search_url = f"https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword={keywords}"
-                print("Solicitando página:", search_url)
-                driver.get(search_url)
+                # Simular el formulario
+                driver.get("https://www.infojobs.net")
+                print("Cargando página inicial...")
+                WebDriverWait(driver, 20).until(
+                    EC.presence_of_element_located((By.ID, "palabra"))
+                )
 
-                # Esperar y hacer scroll
+                # Manejar el popup de consentimiento
+                try:
+                    print("Buscando popup de consentimiento...")
+                    accept_button = WebDriverWait(driver, 10).until(
+                        EC.element_to_be_clickable((By.ID, "didomi-notice-agree-button"))
+                    )
+                    accept_button.click()
+                    print("Popup de consentimiento aceptado.")
+                    time.sleep(2)
+                except Exception as e:
+                    print(f"No se encontró popup o no se pudo aceptar: {str(e)}")
+
+                # Llenar palabra clave
+                keyword_input = driver.find_element(By.ID, "palabra")
+                keyword_input.clear()
+                keyword_input.send_keys(keywords)
+                print(f"Palabra clave ingresada: {keywords}")
+
+                # Seleccionar provincia con Chosen.js
+                if province != '0':
+                    province_select = WebDriverWait(driver, 20).until(
+                        EC.presence_of_element_located((By.ID, "of_provincia"))
+                    )
+                    driver.execute_script(f"document.getElementById('of_provincia').value = '{province}';")
+                    driver.execute_script("jQuery('#of_provincia').trigger('chosen:updated');")
+                    print(f"Provincia seleccionada: {province}")
+                    time.sleep(1)
+
+                # Hacer clic en buscar
+                search_button = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.ID, "searchOffers"))
+                )
+                search_button.click()
+                print("Botón de búsqueda clicado.")
+
+                # Esperar resultados
                 print("Esperando ofertas iniciales...")
-                WebDriverWait(driver, 15).until(
+                WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located((By.CLASS_NAME, "ij-OfferCardContent-description-title-link"))
                 )
                 print("Ofertas iniciales cargadas. Haciendo scroll...")
-                last_height = driver.execute_script("return document.body.scrollHeight")
-                while len(jobs) < 15:
+                for _ in range(3):
                     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                    time.sleep(2)
-                    new_height = driver.execute_script("return document.body.scrollHeight")
-                    if new_height == last_height:
-                        break
-                    last_height = new_height
+                    time.sleep(3)
 
                 # Obtener HTML
                 html = driver.page_source
                 soup = BeautifulSoup(html, "html.parser")
-
-                # Guardar para depuración
                 with open("infojobs_debug.html", "w", encoding="utf-8") as f:
                     f.write(soup.prettify())
 
@@ -87,7 +122,7 @@ def buscar_trabajos(request):
                     href = job.get('href', '')
                     print(f"href extraído: {href}")
 
-                    # Construir URL de forma segura con urljoin
+                    # Construir URL completa
                     link = urljoin(base_url, href)
                     print(f"URL construida: {link}")
 
@@ -95,44 +130,51 @@ def buscar_trabajos(request):
                     print(f"Visitando oferta: {link}")
                     driver.get(link)
                     try:
-                        WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.CLASS_NAME, "ij-Description-content"))
+                        # Esperar a que cargue la sección de detalles
+                        WebDriverWait(driver, 20).until(
+                            EC.presence_of_element_located((By.CLASS_NAME, "ij-OfferDetailHeader-detailsList"))
                         )
                         offer_html = driver.page_source
                         offer_soup = BeautifulSoup(offer_html, "html.parser")
 
-                        # Verificar si la página tiene contenido
-                        if not offer_soup.select_one(".ij-Description-content"):
-                            print(f"Advertencia: Página en blanco o sin contenido para {title}")
+                        # Extraer datos de detailsList
+                        details_list = offer_soup.select_one(".ij-OfferDetailHeader-detailsList")
+                        modality = "No disponible"
+                        experience = "No disponible"
+                        contract = "No disponible"
 
-                        # Extraer datos
-                        description_elem = offer_soup.select_one(".ij-Description-content")
-                        description = (description_elem.text.strip()[:200] + "..." 
-                                     if description_elem and len(description_elem.text) > 200 
-                                     else description_elem.text.strip() if description_elem else "No disponible")
+                        if details_list:
+                            items = details_list.select("div.ij-OfferDetailHeader-detailsList-item p.ij-Text-body1")
+                            for item in items:
+                                text = item.text.strip()
+                                if any(x in text for x in ["Presencial", "Híbrido", "Remoto"]):
+                                    modality = text
+                                elif "Experiencia mínima" in text:
+                                    experience = text
+                                elif any(x in text for x in ["Contrato", "Jornada"]):
+                                    contract = text
 
-                        location_elem = offer_soup.select_one("span[data-test='job-location']")
-                        location = location_elem.text.strip() if location_elem else "No disponible"
-
-                        salary_elem = offer_soup.select_one("span[data-test='job-salary']")
-                        salary = salary_elem.text.strip() if salary_elem else "No especificado"
-
-                        print(f"Enlace almacenado para front-end: {link}")
+                        # URL limpia para el front-end
+                        clean_link = urljoin(base_url, href.split('?')[0])
+                        print(f"Enlace almacenado: {clean_link}")
+                        print(f"Modalidad: {modality}, Experiencia: {experience}, Contrato: {contract}")
                         jobs.append({
                             "title": title,
-                            "link": link,
-                            "description": description,
-                            "location": location,
-                            "salary": salary
+                            "link": clean_link,
+                            "modality": modality,
+                            "experience": experience,
+                            "contract": contract
                         })
+
                     except Exception as e:
                         print(f"Error al procesar {title}: {str(e)}")
+                        clean_link = urljoin(base_url, href.split('?')[0])
                         jobs.append({
                             "title": title,
-                            "link": link,
-                            "description": "No disponible",
-                            "location": "No disponible",
-                            "salary": "No especificado"
+                            "link": clean_link,
+                            "modality": "No disponible",
+                            "experience": "No disponible",
+                            "contract": "No disponible"
                         })
 
                 if not jobs:
@@ -148,5 +190,5 @@ def buscar_trabajos(request):
 
     print(f"Trabajos encontrados: {len(jobs)}")
     for job in jobs:
-        print(f"Oferta final: {job['title']} - {job['link']}")
+        print(f"Oferta final: {job['title']} - {job['link']} - Modalidad: {job['modality']} - Experiencia: {job['experience']} - Contrato: {job['contract']}")
     return render(request, 'Usuarios/index.html', {'jobs': jobs, 'error': error})

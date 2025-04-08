@@ -33,8 +33,74 @@
         <p>Esta es la página principal de nuestro sistema de búsqueda de empleo.</p>
         <form method="get" action="{% url 'Analisis_mercado:buscar_trabajos' %}">
             <div class="form-group">
-                <label for="q">Palabras clave:</label>
-                <input type="text" name="q" id="q" class="form-control" placeholder="Ej: developer" value="{{ request.GET.q }}">
+                <label for="q">Busco ofertas de...</label>
+                <input type="text" name="q" id="q" class="form-control" placeholder="Puesto, empresa o palabra clave" value="{{ request.GET.q }}">
+            </div>
+            <div class="form-group">
+                <label for="provincia">en...</label>
+                <select id="provincia" name="provincia" class="form-control">
+                    <option value="0" {% if request.GET.provincia == "0" %}selected{% endif %}>Toda España</option>
+                    <optgroup label="Más comunes">
+                        <option value="33" {% if request.GET.provincia == "33" %}selected{% endif %}>Madrid</option>
+                        <option value="9" {% if request.GET.provincia == "9" %}selected{% endif %}>Barcelona</option>
+                        <option value="49" {% if request.GET.provincia == "49" %}selected{% endif %}>Valencia/València</option>
+                        <option value="43" {% if request.GET.provincia == "43" %}selected{% endif %}>Sevilla</option>
+                    </optgroup>
+                    <optgroup label="Todas">
+                        <option value="28" {% if request.GET.provincia == "28" %}selected{% endif %}>A Coruña</option>
+                        <option value="2" {% if request.GET.provincia == "2" %}selected{% endif %}>Álava/Araba</option>
+                        <option value="3" {% if request.GET.provincia == "3" %}selected{% endif %}>Albacete</option>
+                        <option value="4" {% if request.GET.provincia == "4" %}selected{% endif %}>Alicante/Alacant</option>
+                        <option value="5" {% if request.GET.provincia == "5" %}selected{% endif %}>Almería</option>
+                        <option value="6" {% if request.GET.provincia == "6" %}selected{% endif %}>Asturias</option>
+                        <option value="7" {% if request.GET.provincia == "7" %}selected{% endif %}>Ávila</option>
+                        <option value="8" {% if request.GET.provincia == "8" %}selected{% endif %}>Badajoz</option>
+                        <option value="9" {% if request.GET.provincia == "9" %}selected{% endif %}>Barcelona</option>
+                        <option value="10" {% if request.GET.provincia == "10" %}selected{% endif %}>Burgos</option>
+                        <option value="11" {% if request.GET.provincia == "11" %}selected{% endif %}>Cáceres</option>
+                        <option value="12" {% if request.GET.provincia == "12" %}selected{% endif %}>Cádiz</option>
+                        <option value="13" {% if request.GET.provincia == "13" %}selected{% endif %}>Cantabria</option>
+                        <option value="14" {% if request.GET.provincia == "14" %}selected{% endif %}>Castellón/Castelló</option>
+                        <option value="15" {% if request.GET.provincia == "15" %}selected{% endif %}>Ceuta</option>
+                        <option value="16" {% if request.GET.provincia == "16" %}selected{% endif %}>Ciudad Real</option>
+                        <option value="17" {% if request.GET.provincia == "17" %}selected{% endif %}>Córdoba</option>
+                        <option value="18" {% if request.GET.provincia == "18" %}selected{% endif %}>Cuenca</option>
+                        <option value="19" {% if request.GET.provincia == "19" %}selected{% endif %}>Girona</option>
+                        <option value="21" {% if request.GET.provincia == "21" %}selected{% endif %}>Granada</option>
+                        <option value="22" {% if request.GET.provincia == "22" %}selected{% endif %}>Guadalajara</option>
+                        <option value="23" {% if request.GET.provincia == "23" %}selected{% endif %}>Guipúzcoa/Gipuzkoa</option>
+                        <option value="24" {% if request.GET.provincia == "24" %}selected{% endif %}>Huelva</option>
+                        <option value="25" {% if request.GET.provincia == "25" %}selected{% endif %}>Huesca</option>
+                        <option value="26" {% if request.GET.provincia == "26" %}selected{% endif %}>Islas Baleares/Illes Balears</option>
+                        <option value="27" {% if request.GET.provincia == "27" %}selected{% endif %}>Jaén</option>
+                        <option value="29" {% if request.GET.provincia == "29" %}selected{% endif %}>La Rioja</option>
+                        <option value="20" {% if request.GET.provincia == "20" %}selected{% endif %}>Las Palmas</option>
+                        <option value="30" {% if request.GET.provincia == "30" %}selected{% endif %}>León</option>
+                        <option value="31" {% if request.GET.provincia == "31" %}selected{% endif %}>Lleida</option>
+                        <option value="32" {% if request.GET.provincia == "32" %}selected{% endif %}>Lugo</option>
+                        <option value="33" {% if request.GET.provincia == "33" %}selected{% endif %}>Madrid</option>
+                        <option value="34" {% if request.GET.provincia == "34" %}selected{% endif %}>Málaga</option>
+                        <option value="35" {% if request.GET.provincia == "35" %}selected{% endif %}>Melilla</option>
+                        <option value="36" {% if request.GET.provincia == "36" %}selected{% endif %}>Murcia</option>
+                        <option value="37" {% if request.GET.provincia == "37" %}selected{% endif %}>Navarra</option>
+                        <option value="38" {% if request.GET.provincia == "38" %}selected{% endif %}>Ourense</option>
+                        <option value="39" {% if request.GET.provincia == "39" %}selected{% endif %}>Palencia</option>
+                        <option value="40" {% if request.GET.provincia == "40" %}selected{% endif %}>Pontevedra</option>
+                        <option value="41" {% if request.GET.provincia == "41" %}selected{% endif %}>Salamanca</option>
+                        <option value="46" {% if request.GET.provincia == "46" %}selected{% endif %}>Santa Cruz de Tenerife</option>
+                        <option value="42" {% if request.GET.provincia == "42" %}selected{% endif %}>Segovia</option>
+                        <option value="43" {% if request.GET.provincia == "43" %}selected{% endif %}>Sevilla</option>
+                        <option value="44" {% if request.GET.provincia == "44" %}selected{% endif %}>Soria</option>
+                        <option value="45" {% if request.GET.provincia == "45" %}selected{% endif %}>Tarragona</option>
+                        <option value="47" {% if request.GET.provincia == "47" %}selected{% endif %}>Teruel</option>
+                        <option value="48" {% if request.GET.provincia == "48" %}selected{% endif %}>Toledo</option>
+                        <option value="49" {% if request.GET.provincia == "49" %}selected{% endif %}>Valencia/València</option>
+                        <option value="50" {% if request.GET.provincia == "50" %}selected{% endif %}>Valladolid</option>
+                        <option value="51" {% if request.GET.provincia == "51" %}selected{% endif %}>Vizcaya/Bizkaia</option>
+                        <option value="52" {% if request.GET.provincia == "52" %}selected{% endif %}>Zamora</option>
+                        <option value="53" {% if request.GET.provincia == "53" %}selected{% endif %}>Zaragoza</option>
+                    </optgroup>
+                </select>
             </div>
             <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
@@ -46,9 +112,9 @@
                 {% for job in jobs %}
                     <div class="job-item">
                         <h3><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></h3>
-                        <p><strong>Ubicación:</strong> {{ job.location }}</p>
-                        <p><strong>Salario:</strong> {{ job.salary }}</p>
-                        <p><strong>Descripción:</strong> {{ job.description }}</p>
+                        <p><strong>Modalidad:</strong> {{ job.modality }}</p>
+                        <p><strong>Experiencia:</strong> {{ job.experience }}</p>
+                        <p><strong>Contrato:</strong> {{ job.contract }}</p>
                     </div>
                 {% endfor %}
             </div>
