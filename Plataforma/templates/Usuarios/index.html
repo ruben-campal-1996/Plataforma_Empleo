@@ -1,4 +1,4 @@
-{% load static django_bootstrap5 %}
+{% load static django_bootstrap5 pagination_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -106,67 +106,79 @@
             <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
 
-        <!-- Spinner -->
-        <div id="loading-spinner" class="text-center d-none mt-3">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p>Este proceso puede tardar unos minutos</p>
-        </div>
-
-        {% if error %}
-            <div class="alert alert-danger mt-3">{{ error }}</div>
-        {% endif %}
-
-        <!-- Paginación superior -->
-        <nav aria-label="Page navigation" id="pagination-top" class="d-none mt-3">
-            <ul class="pagination justify-content-center">
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-            </ul>
-        </nav>
-
-        <!-- Contenedor de ofertas -->
-        <div id="job-list" class="job-list d-block mt-3">
-            {% for job in jobs %}
-                <div class="job-item">
-                    <h3><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></h3>
-                    <p><strong>Ubicación:</strong> {{ job.location }}</p>
-                    <p><strong>Modalidad:</strong> {{ job.modality }}</p>
-                    <p><strong>Sueldo:</strong> {{ job.salary }}</p>
-                    <p><strong>Experiencia:</strong> {{ job.experience }}</p>
-                    <p><strong>Contrato:</strong> {{ job.contract }}</p>
+        <div id="job-list">
+            {% if jobs %}
+                {% for job in jobs %}
+                    <div>
+                        <h3><a href="{{ job.link }}">{{ job.title }}</a></h3>
+                        <p>Ubicación: {{ job.location }}</p>
+                        <p>Modalidad: {{ job.modality }}</p>
+                        <p>Sueldo: {{ job.salary }}</p>
+                        <p>Experiencia: {{ job.experience }}</p>
+                        <p>Contrato: {{ job.contract }}</p>
+                    </div>
+                {% endfor %}
+            {% elif request.GET.q or request.GET.provincia != '0' %}
+                <div id="loading-spinner" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2">Este proceso puede durar algunos minutos</p>
                 </div>
-            {% empty %}
-                <p>No hay ofertas disponibles.</p>
-            {% endfor %}
+            {% else %}
+                <p>No se encontraron ofertas.</p>
+            {% endif %}
         </div>
 
-        <!-- Paginación inferior -->
-        <nav aria-label="Page navigation" id="pagination-bottom" class="d-none mt-3">
-            <ul class="pagination justify-content-center">
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        <div id="pagination-top" class="d-none">
+            <ul class="pagination">
+                {% if current_page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ keywords|urlencode }}&provincia={{ province }}&page={{ current_page|add:-1 }}">Previous</a>
+                    </li>
+                {% endif %}
+                {% for num in total_pages|times %}
+                    <li class="page-item {% if num == current_page %}active{% endif %}">
+                        <a class="page-link" href="?q={{ keywords|urlencode }}&provincia={{ province }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if current_page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ keywords|urlencode }}&provincia={{ province }}&page={{ current_page|add:1 }}">Next</a>
+                    </li>
+                {% endif %}
             </ul>
-        </nav>
-    </div>
+        </div>
 
-    {% bootstrap_javascript %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('search-form');
-            const spinner = document.getElementById('loading-spinner');
-            const jobList = document.getElementById('job-list');
-            const paginationTop = document.getElementById('pagination-top');
-            const paginationBottom = document.getElementById('pagination-bottom');
-    
-            // Manejo del envío del formulario
+        <div id="pagination-bottom" class="d-none">
+            <ul class="pagination">
+                {% if current_page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ keywords|urlencode }}&provincia={{ province }}&page={{ current_page|add:-1 }}">Previous</a>
+                    </li>
+                {% endif %}
+                {% for num in total_pages|times %}
+                    <li class="page-item {% if num == current_page %}active{% endif %}">
+                        <a class="page-link" href="?q={{ keywords|urlencode }}&provincia={{ province }}&page={{ num }}">{{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if current_page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ keywords|urlencode }}&provincia={{ province }}&page={{ current_page|add:1 }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('search-form');
+                const spinner = document.getElementById('loading-spinner');
+                const jobList = document.getElementById('job-list');
+                const paginationTop = document.getElementById('pagination-top');
+                const paginationBottom = document.getElementById('pagination-bottom');
+
+            // Mostrar spinner al enviar el formulario
             if (form) {
                 form.addEventListener('submit', function(event) {
                     console.log("Formulario enviado, mostrando spinner...");
@@ -174,25 +186,45 @@
                     jobList.classList.add('d-none');
                     paginationTop.classList.add('d-none');
                     paginationBottom.classList.add('d-none');
+                    localStorage.setItem('isScraping', 'true');
                 });
             }
-    
-            // Obtener el número de trabajos desde una variable definida por Django
-            const hasJobs = Number("{{ jobs|length|default:'0' }}"); // Convertimos a número y usamos comillas para evitar errores de sintaxis
-            console.log("Página cargada, número de ofertas recibidas: " + hasJobs);
-    
-            // Mostrar u ocultar elementos según si hay trabajos
+
+            // Verificar estado al cargar la página
+            const isScraping = localStorage.getItem('isScraping') === 'true';
+            const hasJobs = {{ jobs|length|default:0 }};
+            const totalPages = {{ total_pages|default:1 }};
+
             if (hasJobs > 0) {
+                // Si hay resultados, ocultar spinner y mostrar ofertas y paginación
                 spinner.classList.add('d-none');
                 jobList.classList.remove('d-none');
                 jobList.classList.add('d-block');
-                paginationTop.classList.remove('d-none');
-                paginationBottom.classList.remove('d-none');
+                if (totalPages > 1) {
+                    paginationTop.classList.remove('d-none');
+                    paginationBottom.classList.remove('d-none');
+                }
+                localStorage.removeItem('isScraping'); // Limpiar estado
+            } else if (isScraping) {
+                // Si está scrapeando, mostrar spinner
+                spinner.classList.remove('d-none');
+                jobList.classList.add('d-none');
+                paginationTop.classList.add('d-none');
+                paginationBottom.classList.add('d-none');
             } else {
+                // Carga inicial o sin resultados: mostrar mensaje
                 spinner.classList.add('d-none');
                 jobList.classList.remove('d-none');
+                jobList.classList.add('d-block');
+                // Asegurar mensaje inicial si no hay resultados
+                if (hasJobs === 0) {
+                    jobList.innerHTML = '<p class="text-center">No se ha realizado ninguna búsqueda</p>';
+                }
             }
         });
-    </script>
+        </script>
+        {% bootstrap_javascript %}
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    </div>
 </body>
 </html>

@@ -38,7 +38,10 @@ body {
 .container {
     text-align: center;
     margin-top: 0;
-    padding-top: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Contenedor de login sin bordes redondeados */
@@ -65,9 +68,9 @@ body {
 
 .form-group {
     margin-bottom: 15px;
-    text-align: left; /* Alinea etiquetas a la izquierda */
+    text-align: left;
     width: 100%;
-    max-width: 400px; /* Consistencia con otros formularios */
+    max-width: 400px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -245,6 +248,7 @@ body {
     background-color: #007bff;
     color: #fff;
 }
+
 .btn-green {
     background-color: #00bc1f;
     color: #fff;
@@ -327,7 +331,8 @@ body {
     }
 }
 
-.jobs-container {
+/* Estilos para el contenedor de trabajos */
+#job-list {
     background-color: #fff;
     border-radius: 15px;
     padding: 20px;
@@ -336,8 +341,8 @@ body {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos para cada oferta */
-.job-item {
+/* Estilos para cada oferta dentro de job-list */
+#job-list > div {
     background-color: #f9f9f9;
     border-radius: 10px;
     padding: 15px;
@@ -347,90 +352,110 @@ body {
     font-size: 16px;
 }
 
-/* Título dentro del contenedor */
-.jobs-container h2 {
-    color: #333;
-    font-size: 20px;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.job-item h3 {
+#job-list h3 {
     margin: 0 0 10px 0;
     font-size: 18px;
+    color: #007bff;
 }
-.job-item h3 a {
+
+#job-list h3 a {
     color: #007bff;
     text-decoration: none;
 }
-.job-item h3 a:hover {
+
+#job-list h3 a:hover {
     text-decoration: underline;
 }
-.job-item p {
+
+#job-list p {
     margin: 5px 0;
     font-size: 14px;
 }
 
-/* Responsividad */
-@media (max-width: 768px) {
-    .jobs-container {
-        width: 90%;
-    }
-    .job-item {
-        font-size: 14px;
-    }
+/* Estilos para la paginación */
+#pagination-top,
+#pagination-bottom {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-
-
-.spinner-border {
-    display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    vertical-align: -0.125em;
-    border: 0.25em solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: .75s linear infinite spinner-border;
-}
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
-}
-@keyframes spinner-border {
-    to { transform: rotate(360deg); }
-}
-.text-center { text-align: center; }
-.d-none { display: none !important; }
-.d-block { display: block !important; }
 
 .pagination {
     display: flex;
     padding-left: 0;
     list-style: none;
     justify-content: center;
-    margin: 1rem 0;
+    margin: 0;
 }
+
 .page-item {
     margin: 0 0.25rem;
 }
+
 .page-link {
     position: relative;
     display: block;
     padding: 0.5rem 0.75rem;
-    color: #0d6efd;
+    color: #007bff;
     text-decoration: none;
     background-color: #fff;
-    border: 1px solid #dee2e6;
+    border: 1px solid #ddd;
     border-radius: 0.375rem;
 }
+
 .page-link:hover {
     color: #0056b3;
     background-color: #e9ecef;
-    border-color: #dee2e6;
+    border-color: #ddd;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+#loading-spinner {
+    display: block;
+    margin: 20px auto;
+    max-width: 600px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#loading-spinner .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+#loading-spinner p {
+    margin: 5px 0 0 0;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Clases de visibilidad */
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    #job-list,
+    #pagination-top,
+    #pagination-bottom {
+        width: 90%;
+    }
+    #job-list > div {
+        font-size: 14px;
+    }
 }

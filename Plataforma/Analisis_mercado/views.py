@@ -13,6 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import random
 from urllib.parse import urljoin
+from math import ceil  # Para calcular el número de páginas
 
 @login_required
 def index(request):
@@ -27,11 +28,12 @@ def buscar_trabajos(request):
     if request.method == 'GET':
         keywords = request.GET.get('q', '')
         province = request.GET.get('provincia', '0')
+        page = int(request.GET.get('page', 1))  # Página actual, por defecto 1
         print(f"Palabra clave recibida: {keywords}")
         print(f"Provincia recibida: {province}")
+        print(f"Página solicitada: {page}")
 
         if keywords:
-            # Configuración optimizada de Selenium
             options = Options()
             options.headless = True
             options.add_argument("--no-sandbox")
@@ -39,8 +41,8 @@ def buscar_trabajos(request):
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_argument("window-size=1920,1080")
             options.add_argument("--ignore-certificate-errors")
-            options.add_argument("--disable-gpu")  # Evitar detección adicional
-            options.add_experimental_option("excludeSwitches", ["enable-automation"])  # Ocultar señales de automatización
+            options.add_argument("--disable-gpu")
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option('useAutomationExtension', False)
             user_agents = [
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -103,17 +105,16 @@ def buscar_trabajos(request):
                 search_button.click()
                 print("Botón de búsqueda clicado.")
 
-                print("\nProcesando página 1...")
+                print("\nProcesando página 1 de InfoJobs...")
                 WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located((By.CLASS_NAME, "ij-OfferCardContent-description-title-link"))
                 )
                 print("Ofertas cargadas. Haciendo scroll para recolectar todas las ofertas de la página 1...")
 
-                # Scroll optimizado en la página de resultados
                 previous_height = driver.execute_script("return document.body.scrollHeight")
                 for i in range(10):
                     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                    time.sleep(2)  # Reducido de 3 a 2 segundos
+                    time.sleep(2)
                     new_height = driver.execute_script("return document.body.scrollHeight")
                     print(f"Scroll {i+1}/10 - Altura de página: {new_height}")
                     if new_height == previous_height:
@@ -127,11 +128,10 @@ def buscar_trabajos(request):
                     f.write(soup.prettify())
 
                 all_job_listings = soup.select("a.ij-OfferCardContent-description-title-link")
-                print(f"Ofertas detectadas en página 1: {len(all_job_listings)}")
-                job_listings = all_job_listings  # Tomamos todas las ofertas de la página 1
-                print(f"Elementos seleccionados para procesar: {len(job_listings)}")
+                print(f"Ofertas detectadas en página 1 de InfoJobs: {len(all_job_listings)}")
 
-                for i, job in enumerate(job_listings):
+                # Procesar todas las ofertas recolectadas
+                for i, job in enumerate(all_job_listings):
                     print(f"\nProcesando oferta {i+1}...")
                     title = job.text.strip()
                     href = job.get('href', '')
@@ -141,14 +141,14 @@ def buscar_trabajos(request):
                     print(f"URL construida: {link}")
 
                     print(f"Visitando oferta: {link}")
-                    for attempt in range(2):  # Reintento para la oferta 1 u otras que fallen
+                    for attempt in range(2):
                         try:
                             driver.get(link)
                             print(f"Esperando detalles para oferta {i+1}...")
                             WebDriverWait(driver, 20).until(
                                 EC.presence_of_element_located((By.CLASS_NAME, "ij-OfferDetailHeader-detailsList"))
                             )
-                            break  # Si carga bien, salimos del reintento
+                            break
                         except Exception as e:
                             if attempt == 0:
                                 print(f"Fallo al cargar oferta {i+1} (intento 1/2), reintentando...")
@@ -212,6 +212,18 @@ def buscar_trabajos(request):
                     error = "No se encontraron ofertas en la página 1."
                     print(error)
 
+                # Paginación en el servidor
+                items_per_page = 10
+                total_jobs = len(jobs)
+                total_pages = ceil(total_jobs / items_per_page)  # Número total de páginas
+                start_index = (page - 1) * items_per_page
+                end_index = start_index + items_per_page
+                paginated_jobs = jobs[start_index:end_index]  # Solo las ofertas de la página actual
+
+                print(f"Total de trabajos recolectados: {total_jobs}")
+                print(f"Total de páginas: {total_pages}")
+                print(f"Ofertas enviadas para página {page}: {len(paginated_jobs)}")
+
             except Exception as e:
                 error = f"Ocurrió un error en el scraping: {str(e)}"
                 print(error)
@@ -220,7 +232,13 @@ def buscar_trabajos(request):
                 driver.quit()
                 print("Navegador cerrado.")
 
-    print(f"Trabajos encontrados: {len(jobs)}")
-    for job in jobs:
-        print(f"Oferta final: {job['title']} - {job['link']} - Ubicación: {job['location']} - Modalidad: {job['modality']} - Sueldo: {job['salary']} - Experiencia: {job['experience']} - Contrato: {job['contract']}")
-    return render(request, 'Usuarios/index.html', {'jobs': jobs, 'error': error})
+    # Contexto para el template
+    context = {
+        'jobs': paginated_jobs if 'paginated_jobs' in locals() else jobs,
+        'error': error,
+        'total_pages': total_pages if 'total_pages' in locals() else 1,
+        'current_page': page,
+        'keywords': keywords,
+        'province': province,
+    }
+    return render(request, 'Usuarios/index.html', context)

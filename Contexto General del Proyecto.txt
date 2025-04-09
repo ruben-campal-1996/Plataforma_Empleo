@@ -1,0 +1,59 @@
+Contexto General del Proyecto:
+
+Estás asistiendo en el desarrollo de una plataforma web llamada "Job2Pay", construida con Django, que tiene como objetivo buscar ofertas de empleo en InfoJobs mediante web scraping con Selenium y presentarlas en un front-end amigable. El sistema permite a los usuarios autenticados buscar trabajos por palabras clave y provincia, mostrando los resultados paginados con detalles como título, enlace, ubicación, modalidad, salario, experiencia y tipo de contrato. El scraping se realiza en tiempo real al enviar un formulario, y el front-end incluye un spinner para indicar el proceso de carga, junto con paginación para navegar entre resultados.
+
+Archivos Clave y su Contenido Actual:
+
+Analisis_mercado/views.py:
+Contiene las vistas de Django para manejar las solicitudes.
+index(request): Renderiza la página inicial (usuarios/index.html) con un contexto básico (jobs=[], error=None).
+buscar_trabajos(request): Vista principal que realiza el scraping:
+Recibe parámetros GET: q (palabras clave), provincia (código de provincia), y page (página actual, por defecto 1).
+Usa Selenium con Chrome en modo headless para navegar a InfoJobs, ingresar los filtros, y recolectar ofertas de la primera página de resultados.
+Extrae detalles de cada oferta visitando su URL individual (título, enlace, ubicación, modalidad, salario, experiencia, contrato).
+Implementa paginación en el servidor: 10 ofertas por página, calculando total_pages con ceil(total_jobs / 10).
+Devuelve un contexto con jobs (ofertas paginadas), error, total_pages, current_page, keywords, y province.
+Maneja errores con try-except y cierra el navegador en el bloque finally.
+templates/usuarios/index.html:
+Template principal que muestra el front-end:
+Encabezado: Barra superior (top-bar) con opciones de usuario (perfil, logout, admin) si está autenticado, o botones de login/registro si no.
+Formulario: Campos para q (texto) y provincia (select con todas las provincias de España), enviando a buscar_trabajos.
+Contenedor de resultados (#job-list):
+Si hay jobs, muestra cada oferta con título (enlace clicable), ubicación, modalidad, salario, experiencia y contrato.
+Si hay parámetros de búsqueda (request.GET.q o provincia != '0') pero no resultados, muestra un spinner con el mensaje "Este proceso puede durar algunos minutos".
+Si no hay búsqueda ni resultados, muestra "No se encontraron ofertas".
+Paginación (#pagination-top y #pagination-bottom): Listas <ul> con "Previous", números de página, y "Next", ocultas por defecto (d-none).
+JavaScript:
+Usa localStorage (isScraping) para rastrear el estado del scraping.
+Al enviar el formulario, muestra el spinner y oculta resultados/paginación.
+Al cargar la página, verifica si hay resultados (hasJobs), scraping activo (isScraping), o carga inicial, ajustando la visibilidad y mostrando "No se ha realizado ninguna búsqueda" si corresponde.
+static/styles.css:
+Estilos para el front-end:
+Fondo azul (#569fff), barra superior naranja (#ffa55b), y contenedores blancos con bordes redondeados (15px) y sombras.
+#job-list: Contenedor blanco centrado (máx. 600px) para resultados, con ofertas en bloques (div) gris claro.
+#loading-spinner: Contenedor blanco con spinner y mensaje, centrado y estilizado igual que #job-list.
+#pagination-top y #pagination-bottom: Contenedores blancos con paginación centrada, botones redondeados y hover activo.
+Clases d-none y d-block para controlar visibilidad.
+Objetivos Actuales:
+
+Estamos trabajando en dos mejoras específicas:
+
+Spinner y Mensaje:
+El spinner con "Este proceso puede durar algunos minutos" debe aparecer solo durante el scraping, no en la carga inicial ni después de los resultados.
+En la carga inicial (sin búsqueda), #job-list debe mostrar "No se ha realizado ninguna búsqueda" en lugar de "No se encontraron ofertas".
+Paginación Visible:
+La paginación (#pagination-top y #pagination-bottom) debe mostrarse después del scraping si hay más de una página (total_pages > 1), con "Previous", números, y "Next" funcionales.
+Estado Actual y Problemas Pendientes:
+
+El scraping en buscar_trabajos funciona y recolecta ofertas correctamente, con paginación en el servidor implementada.
+El front-end (index.html) muestra resultados y el spinner, pero:
+El spinner aparece cuando hay parámetros GET, no solo durante el scraping activo.
+La paginación permanece oculta (d-none) después del scraping, aunque total_pages se calcula.
+Los estilos en styles.css están aplicados y son coherentes, pero la visibilidad dinámica necesita ajustes.
+Tareas Solicitadas:
+
+Por favor, ajusta el código para:
+
+Hacer que el spinner sea visible solo mientras el scraping está en curso, usando localStorage u otra lógica para detectarlo con precisión.
+Mostrar "No se ha realizado ninguna búsqueda" en la carga inicial sin búsqueda.
+Asegurar que la paginación sea visible y funcional después del scraping cuando total_pages > 1.
