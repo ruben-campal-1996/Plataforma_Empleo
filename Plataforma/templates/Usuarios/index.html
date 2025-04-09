@@ -7,6 +7,7 @@
     <title>Plataforma - Inicio</title>
     {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
     <div class="top-bar">
@@ -31,7 +32,7 @@
     <div class="container">
         <h1>Bienvenido a Job2Pay</h1>
         <p>Esta es la página principal de nuestro sistema de búsqueda de empleo.</p>
-        <form method="get" action="{% url 'Analisis_mercado:buscar_trabajos' %}">
+        <form method="get" action="{% url 'Analisis_mercado:buscar_trabajos' %}" id="search-form">
             <div class="form-group">
                 <label for="q">Busco ofertas de...</label>
                 <input type="text" name="q" id="q" class="form-control" placeholder="Puesto, empresa o palabra clave" value="{{ request.GET.q }}">
@@ -105,25 +106,93 @@
             <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
 
-        <!-- Resultados -->
-        {% if jobs %}
-            <div class="jobs-container">
-                <h2>Resultados de búsqueda</h2>
-                {% for job in jobs %}
-                    <div class="job-item">
-                        <h3><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></h3>
-                        <p><strong>Modalidad:</strong> {{ job.modality }}</p>
-                        <p><strong>Experiencia:</strong> {{ job.experience }}</p>
-                        <p><strong>Contrato:</strong> {{ job.contract }}</p>
-                    </div>
-                {% endfor %}
+        <!-- Spinner -->
+        <div id="loading-spinner" class="text-center d-none mt-3">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
             </div>
-        {% elif error %}
-            <p class="alert error">{{ error }}</p>
+            <p>Este proceso puede tardar unos minutos</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger mt-3">{{ error }}</div>
         {% endif %}
+
+        <!-- Paginación superior -->
+        <nav aria-label="Page navigation" id="pagination-top" class="d-none mt-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+
+        <!-- Contenedor de ofertas -->
+        <div id="job-list" class="job-list d-block mt-3">
+            {% for job in jobs %}
+                <div class="job-item">
+                    <h3><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></h3>
+                    <p><strong>Ubicación:</strong> {{ job.location }}</p>
+                    <p><strong>Modalidad:</strong> {{ job.modality }}</p>
+                    <p><strong>Sueldo:</strong> {{ job.salary }}</p>
+                    <p><strong>Experiencia:</strong> {{ job.experience }}</p>
+                    <p><strong>Contrato:</strong> {{ job.contract }}</p>
+                </div>
+            {% empty %}
+                <p>No hay ofertas disponibles.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Paginación inferior -->
+        <nav aria-label="Page navigation" id="pagination-bottom" class="d-none mt-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
     </div>
 
     {% bootstrap_javascript %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('search-form');
+            const spinner = document.getElementById('loading-spinner');
+            const jobList = document.getElementById('job-list');
+            const paginationTop = document.getElementById('pagination-top');
+            const paginationBottom = document.getElementById('pagination-bottom');
+    
+            // Manejo del envío del formulario
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    console.log("Formulario enviado, mostrando spinner...");
+                    spinner.classList.remove('d-none');
+                    jobList.classList.add('d-none');
+                    paginationTop.classList.add('d-none');
+                    paginationBottom.classList.add('d-none');
+                });
+            }
+    
+            // Obtener el número de trabajos desde una variable definida por Django
+            const hasJobs = Number("{{ jobs|length|default:'0' }}"); // Convertimos a número y usamos comillas para evitar errores de sintaxis
+            console.log("Página cargada, número de ofertas recibidas: " + hasJobs);
+    
+            // Mostrar u ocultar elementos según si hay trabajos
+            if (hasJobs > 0) {
+                spinner.classList.add('d-none');
+                jobList.classList.remove('d-none');
+                jobList.classList.add('d-block');
+                paginationTop.classList.remove('d-none');
+                paginationBottom.classList.remove('d-none');
+            } else {
+                spinner.classList.add('d-none');
+                jobList.classList.remove('d-none');
+            }
+        });
+    </script>
 </body>
 </html>

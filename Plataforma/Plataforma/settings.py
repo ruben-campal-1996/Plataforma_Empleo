@@ -115,16 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Configuración de archivos estáticos
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Carpeta static en la raíz del proyecto
-]
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Para collectstatic en producción
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Opcional: Si usas DEBUG = False en producción, configura esto también
 # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
@@ -143,7 +133,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # Carpeta static en la raíz del proyecto
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Para collectstatic en producción
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
