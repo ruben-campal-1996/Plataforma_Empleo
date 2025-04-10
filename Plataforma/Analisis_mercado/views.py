@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.select import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
@@ -254,3 +255,101 @@ def buscar_trabajos(request):
         'scraped': scraped or ('jobs' in request.session),  # Indica si las ofertas ya están en la sesión
     }
     return render(request, 'Usuarios/index.html', context)
+
+
+def scrape_tecnoempleo(keywords, province):
+    jobs = []
+    base_url = "https://www.tecnoempleo.com"
+    options = Options()
+    options.headless = True  # Ejecutar sin interfaz gráfica
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+    # Mapeo de provincias de InfoJobs a Tecnoempleo
+    province_mapping = {
+        "1": "231", "2": "232", "3": "233", "4": "234", "5": "235", "6": "236", "7": "237", "8": "238",
+        "9": "239", "10": "240", "11": "241", "12": "242", "13": "243", "14": "244", "15": "245", "16": "246",
+        "17": "247", "18": "248", "19": "249", "20": "250", "21": "251", "22": "252", "23": "253", "24": "254",
+        "25": "255", "26": "256", "27": "257", "28": "258", "29": "259", "30": "260", "31": "261", "32": "262",
+        "33": "263", "34": "264", "35": "265", "36": "266", "37": "267", "38": "268", "39": "269", "40": "270",
+        "41": "271", "42": "273", "43": "274", "44": "275", "45": "272", "46": "276", "47": "277", "48": "278",
+        "49": "279", "50": "280", "51": "281", "52": "282"
+    }
+
+    try:
+        print("Iniciando scraping de Tecnoempleo...")
+        driver.get(base_url)
+        # Esperar a que el campo de búsqueda esté presente
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "te")))
+        print("Página de Tecnoempleo cargada.")
+
+        # Ingresar palabras clave
+        keyword_input = driver.find_element(By.ID, "te")
+        keyword_input.clear()
+        keyword_input.send_keys(keywords)
+        print(f"Palabra clave ingresada: {keywords}")
+
+        # Seleccionar provincia si no es '0'
+        if province != '0':
+            tecno_province = province_mapping.get(province, province)  # Mapear el ID de InfoJobs a Tecnoempleo
+            print(f"Provincia recibida (InfoJobs ID): {province}")
+            print(f"Provincia mapeada para Tecnoempleo: {tecno_province}")
+            select = Select(WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.NAME, "pr"))
+            ))
+            select.select_by_value(tecno_province)
+            print(f"Provincia seleccionada en Tecnoempleo: {tecno_province}")
+
+        # Hacer clic en el botón de búsqueda
+        search_button = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Buscar Trabajo')]"))
+        )
+        search_button.click()
+        print("Búsqueda iniciada en Tecnoempleo.")
+
+        # Esperar a que carguen los resultados
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "py-2")))  # Ajustado tras inspección
+        print("Resultados cargados. Procesando ofertas...")
+
+        # Hacer scroll para cargar todas las ofertas
+        total_height = driver.execute_script("return document.body.scrollHeight")
+        current_position = 0
+        step = 500
+        while current_position < total_height:
+            driver.execute_script(f"window.scrollTo(0, {current_position});")
+            current_position += step
+            time.sleep(0.5)
+            new_height = driver.execute_script("return document.body.scrollHeight")
+            if new_height > total_height:
+                total_height = new_height
+
+        # Extraer las ofertas
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
+        all_job_listings = soup.select("div.py-2")  # Contenedor de cada oferta
+
+        for job in all_job_listings:
+            title_elem = job.select_one("h2.fs-5 a")
+            if title_elem:
+                title = title_elem.text.strip()
+                href = title_elem.get('href', '')
+                link = urljoin(base_url, href)
+                location_elem = job.select_one("span.text-muted")
+                location = location_elem.text.strip() if location_elem else "No disponible"
+                jobs.append({
+                    "title": title,
+                    "link": link,
+                    "location": location,
+                    "source": "Tecnoempleo"
+                })
+                print(f"Oferta añadida: {title}")
+
+        print(f"Total de ofertas recolectadas de Tecnoempleo: {len(jobs)}")
+        return jobs
+
+    except Exception as e:
+        print(f"Error en scrape_tecnoempleo: {str(e)}")
+        return jobs
+
+    finally:
+        driver.quit()
+        print("Navegador cerrado.")
