@@ -17,6 +17,7 @@ media/         # Archivos subidos por usuarios
 venv/
 env/
 *.env
+entorno-virtual/
 
 # Archivos de migraciones
 # migrations/   # Comentado: no siempre se ignora, depende de si quieres versionarlas
