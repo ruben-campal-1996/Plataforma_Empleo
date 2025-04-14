@@ -8,6 +8,20 @@
     {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .job-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .job-source {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="top-bar">
@@ -114,7 +128,7 @@
             </div>
         </div>
 
-        <!--Pagination top-->
+        <!-- Pagination top -->
         <div id="pagination-top" {% if total_pages <= 1 or not total_pages %}class="d-none"{% endif %}>
             <ul class="pagination">
                 {% if current_page > 1 %}
@@ -146,23 +160,30 @@
         </div>
 
         <!-- Lista de Ofertas -->
-        <div id="job-list" class="d-none">
+        <div id="job-list" {% if jobs %}class="mt-4"{% else %}class="d-none"{% endif %}>
             {% if jobs %}
                 {% for job in jobs %}
-                    <div>
-                        <h3><a href="{{ job.link }}">{{ job.title }}</a></h3>
-                        <p>Ubicación: {{ job.location }}</p>
-                        <p>Modalidad: {{ job.modality }}</p>
-                        <p>Sueldo: {{ job.salary }}</p>
-                        <p>Experiencia: {{ job.experience }}</p>
-                        <p>Contrato: {{ job.contract }}</p>
+                    <div class="job-container">
+                        <p class="job-source">{{ job.source }}</p>
+                        <h3><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></h3>
+                        <p><strong>Empresa:</strong> {{ job.company|default:"No disponible" }}</p>
+                        <p><strong>Ubicación:</strong> {{ job.location }}</p>
+                        <p><strong>Modalidad:</strong> {{ job.modality }}</p>
+                        <p><strong>Sueldo:</strong> {{ job.salary }}</p>
+                        <p><strong>Experiencia:</strong> {{ job.experience }}</p>
+                        <p><strong>Contrato:</strong> {{ job.contract }}</p>
+                        {% if job.source == "Tecnoempleo" %}
+                            <p><strong>Tecnologías:</strong> {{ job.technologies|join:", " }}</p>
+                        {% endif %}
                     </div>
                 {% endfor %}
+            {% else %}
+                <p>No se encontraron ofertas.</p>
             {% endif %}
         </div>
 
-         <!--Pagination bottom-->
-         <div id="pagination-bottom" {% if total_pages <= 1 or not total_pages %}class="d-none"{% endif %}>
+        <!-- Pagination bottom -->
+        <div id="pagination-bottom" {% if total_pages <= 1 or not total_pages %}class="d-none"{% endif %}>
             <ul class="pagination">
                 {% if current_page > 1 %}
                     <li class="page-item">
