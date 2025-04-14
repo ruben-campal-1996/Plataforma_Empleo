@@ -162,21 +162,23 @@
         <!-- Lista de Ofertas -->
         <div id="job-list" {% if jobs %}class="mt-4"{% else %}class="d-none"{% endif %}>
             {% if jobs %}
-                {% for job in jobs %}
-                    <div class="job-container">
-                        <p class="job-source">{{ job.source }}</p>
-                        <h3><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></h3>
-                        <p><strong>Empresa:</strong> {{ job.company|default:"No disponible" }}</p>
-                        <p><strong>Ubicación:</strong> {{ job.location }}</p>
-                        <p><strong>Modalidad:</strong> {{ job.modality }}</p>
-                        <p><strong>Sueldo:</strong> {{ job.salary }}</p>
-                        <p><strong>Experiencia:</strong> {{ job.experience }}</p>
-                        <p><strong>Contrato:</strong> {{ job.contract }}</p>
-                        {% if job.source == "Tecnoempleo" %}
-                            <p><strong>Tecnologías:</strong> {{ job.technologies|join:", " }}</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+            {% for job in jobs %}
+            <div class="job-listing">
+                <h3>{{ job.source }}</h3>
+                <p><a href="{{ job.link }}" target="_blank">{{ job.title }}</a></p>
+                <p><strong>Empresa:</strong> {{ job.company }}</p>
+                <p><strong>Ubicación:</strong> {{ job.location }}</p>
+                <p><strong>Modalidad:</strong> {{ job.modality }}</p>
+                {% if job.source == "InfoJobs" %}
+                    <p><strong>Sueldo:</strong> {{ job.salary }}</p>
+                {% endif %}
+                <p><strong>Experiencia:</strong> {{ job.experience }}</p>
+                <p><strong>Contrato:</strong> {{ job.contract }}</p>
+                <p><strong>Tecnologías:</strong> {{ job.technologies|join:", " }}</p>
+            </div>
+            {% empty %}
+            <p>No se encontraron ofertas.</p>
+            {% endfor %}
             {% else %}
                 <p>No se encontraron ofertas.</p>
             {% endif %}

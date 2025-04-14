@@ -232,13 +232,58 @@ def scrape_tecnoempleo(keywords, province):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     province_mapping = {
-        "1": "231", "2": "232", "3": "233", "4": "234", "5": "235", "6": "236", "7": "237", "8": "238",
-        "9": "239", "10": "240", "11": "241", "12": "242", "13": "243", "14": "244", "15": "245", "16": "246",
-        "17": "247", "18": "248", "19": "249", "20": "250", "21": "251", "22": "252", "23": "253", "24": "254",
-        "25": "255", "26": "256", "27": "257", "28": "258", "29": "259", "30": "260", "31": "261", "32": "262",
-        "33": "263", "34": "264", "35": "265", "36": "266", "37": "267", "38": "268", "39": "269", "40": "270",
-        "41": "271", "42": "273", "43": "274", "44": "275", "45": "272", "46": "276", "47": "277", "48": "278",
-        "49": "279", "50": "280", "51": "281", "52": "282"
+        "28": "231",  # A Coruña
+        "2": "232",   # Álava/Araba
+        "3": "233",   # Albacete
+        "4": "234",   # Alicante/Alacant
+        "5": "235",   # Almería
+        "6": "236",   # Asturias
+        "7": "237",   # Ávila
+        "8": "238",   # Badajoz
+        "9": "240",   # Barcelona
+        "10": "242",  # Burgos
+        "11": "243",  # Cáceres
+        "12": "244",  # Cádiz
+        "13": "245",  # Cantabria
+        "14": "246",  # Castellón/Castelló
+        "15": "247",  # Ceuta
+        "16": "248",  # Ciudad Real
+        "17": "249",  # Córdoba
+        "18": "250",  # Cuenca
+        "19": "252",  # Girona
+        "20": "259",  # Las Palmas -> Las Palmas de Gran Canaria
+        "21": "253",  # Granada
+        "22": "254",  # Guadalajara
+        "23": "251",  # Guipúzcoa/Gipuzkoa -> Gipuzkoa
+        "24": "255",  # Huelva
+        "25": "256",  # Huesca
+        "26": "239",  # Islas Baleares/Illes Balears -> Baleares
+        "27": "257",  # Jaén
+        "29": "258",  # La Rioja
+        "30": "260",  # León
+        "31": "262",  # Lleida
+        "32": "261",  # Lugo
+        "33": "263",  # Madrid
+        "34": "264",  # Málaga
+        "35": "265",  # Melilla
+        "36": "266",  # Murcia
+        "37": "267",  # Navarra
+        "38": "268",  # Ourense
+        "39": "269",  # Palencia
+        "40": "270",  # Pontevedra
+        "41": "271",  # Salamanca
+        "42": "273",  # Segovia
+        "43": "274",  # Sevilla
+        "44": "275",  # Soria
+        "45": "276",  # Tarragona
+        "46": "272",  # Santa Cruz de Tenerife -> Sta. Cruz de Tenerife
+        "47": "277",  # Teruel
+        "48": "278",  # Toledo
+        "49": "279",  # Valencia/València -> Valencia
+        "50": "280",  # Valladolid
+        "51": "241",  # Vizcaya/Bizkaia -> Bizkaia
+        "52": "281",  # Zamora
+        "53": "282",  # Zaragoza
     }
 
     def scrape_page():
@@ -273,39 +318,33 @@ def scrape_tecnoempleo(keywords, province):
             company_elem = job.select_one("a.text-primary")
             company = company_elem.text.strip() if company_elem else "No disponible"
 
-            details_elem = job.select_one("span.d-block.d-lg-none.text-gray-800")
-            details = details_elem.text.strip() if details_elem else "No disponible"
-            
-            modality = "No disponible"
-            salary = "No disponible"
-            if details != "No disponible":
-                parts = details.split(" - ")
-                if len(parts) > 0:
-                    modality = parts[0].strip()
-                if len(parts) > 1:
-                    salary = parts[1].split("<br>")[-1].strip() if "<br>" in details else parts[1].strip()
-
-            description_elem = job.select_one("span.hidden-md-down.text-gray-800")
-            description = description_elem.text.strip() if description_elem else "No disponible"
+            # Extraer modalidad
+            modality_elem = job.select_one("span.d-block.d-lg-none.text-gray-800")
+            modality = modality_elem.text.strip() if modality_elem else "No disponible"
+            if modality != "No disponible":
+                modality = modality.split(" - ")[0].strip()
 
             tech_elems = job.select("span.badge")
             technologies = [tech.text.strip() for tech in tech_elems] if tech_elems else ["No disponible"]
 
             location = "No disponible"
-            if "España" in description or "remoto" in description.lower():
-                location = "España (Remoto)" if "remoto" in description.lower() else "España"
+            location_elem = job.select_one("span.location, span.text-gray-800")
+            if location_elem:
+                location_text = location_elem.text.strip().lower()
+                if "españa" in location_text or "remoto" in location_text:
+                    location = "España (Remoto)" if "remoto" in location_text else "España"
+                else:
+                    location = location_text.capitalize()
 
             jobs.append({
                 "title": title,
                 "link": link,
                 "location": location,
                 "modality": modality,
-                "salary": salary,
                 "experience": "No disponible",
                 "contract": "No disponible",
                 "source": "Tecnoempleo",
                 "company": company,
-                "description": description,
                 "technologies": technologies
             })
             print(f"Oferta añadida de Tecnoempleo: {title}")
