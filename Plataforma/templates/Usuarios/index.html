@@ -26,18 +26,18 @@
 <body>
     <div class="top-bar">
         {% if user.is_authenticated %}
-            <div class="dropdown">
-                <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ user.nombre }}
-                </button>
-                <ul class="dropdown-menu" id="dropdownMenu">
-                    <li><a class="dropdown-item" href="#">Perfil</a></li>
-                    {% if user.is_authenticated and user.rol == 'Administrador' %}
-                        <li><a class="dropdown-item" href="{% url 'usuarios:gestion_usuarios' %}">Vista Admin</a></li>
-                    {% endif %}
-                    <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">Cerrar Sesión</a></li>
-                </ul>
-            </div>
+        <div class="dropdown">
+            <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ user.nombre }}
+            </button>
+            <ul class="dropdown-menu" id="dropdownMenu">
+                <li><a class="dropdown-item" href="{% url 'usuarios:user_details' %}">Perfil</a></li>
+                {% if user.is_authenticated and user.rol == 'Administrador' %}
+                    <li><a class="dropdown-item" href="{% url 'usuarios:gestion_usuarios' %}">Vista Admin</a></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">Cerrar Sesión</a></li>
+            </ul>
+        </div>
         {% else %}
             <a href="{% url 'usuarios:login' %}" class="btn btn-primary">Iniciar Sesión</a>
             <a href="{% url 'usuarios:register' %}" class="btn btn-secondary">Registrarse</a>
