@@ -1,150 +1,217 @@
-{% load static django_bootstrap5 pagination_tags %}
+{% load static django_bootstrap5 %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Perfil de {{ user.username }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Usuario</title>
     {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container my-3">
-        <!-- Barra de navegación (igual que index.html) -->
-        {% if user.is_authenticated %}
-            <div class="text-center mb-4">
-                <div class="dropdown">
-                    <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ user.nombre }}
-                    </button>
-                    <ul class="dropdown-menu" id="dropdownMenu">
-                        <li><a class="dropdown-item" href="{% url 'usuarios:user_details' %}">Perfil</a></li>
-                        {% if user.is_authenticated and user.rol == 'Administrador' %}
-                            <li><a class="dropdown-item" href="{% url 'usuarios:gestion_usuarios' %}">Vista Admin</a></li>
-                        {% endif %}
-                        <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">Cerrar Sesión</a></li>
-                    </ul>
+    <div class="top-bar">
+        <a href="{% url 'usuarios:gestion_usuarios' %}" class="btn btn-secondary">Volver</a>
+    </div>
+    <div class="container mt-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="mb-0">Perfil de {{ user.nombre|default:user.correo|default:"Usuario" }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="detail-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Nombre:     {{ user.nombre }}</h5>
+                        </div>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editNombreModal"
+                                data-id="{{ usuario.id_usuario }}" data-nombre="{{ usuario.nombre }}">Editar</button>
+                    </div>
+                    <hr>
+                </div>
+                <div class="detail-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Correo Electrónico:     {{ user.correo }}</h5>
+                        </div>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCorreoModal"
+                                data-id="{{ usuario.id_usuario }}" data-correo="{{ usuario.correo }}">Editar</button>
+                    </div>
+                    <hr>
+                </div>
+                <div class="detail-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Teléfono:    {{ user.telefono|default:"No especificado" }}</h5>
+                        </div>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editTelefonoModal"
+                                data-id="{{ usuario.id_usuario }}" data-telefono="{{ usuario.telefono|default:'' }}">Editar</button>
+                    </div>
+                    <hr>
+                </div>
+                <div class="detail-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Rol:    {{ user.rol }}</h5>
+                        </div>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editRolModal"
+                                data-id="{{ usuario.id_usuario }}" data-rol="{{ usuario.rol }}">Editar</button>
+                    </div>
+                    <hr>
                 </div>
             </div>
-        {% endif %}
-    
-         <!-- Detalles del usuario -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">
-            <h2 class="mb-0">Perfil de {{ user.nombre|default:user.correo|default:"Usuario" }}</h2>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Nombre:</strong> {{ user.nombre|default:"No especificado" }}</p>
-                    <p><strong>Correo:</strong> {{ user.correo|default:"No especificado" }}</p>
-                    <p><strong>Rol:</strong> {{ user.rol|default:"No especificado" }}</p>
-                    <p><strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Nombre completo:</strong> {{ user.first_name|default:"" }} {{ user.last_name|default:"" }}</p>
-                    <p><strong>Estado:</strong> {% if user.is_active %}Activo{% else %}Inactivo{% endif %}</p>
-                    <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d/m/Y"|default:"No especificado" }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="card-footer text-center">
-            <!-- Dropdown para acciones -->
-            <div class="dropdown d-inline-block">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    Opciones
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editNameModal">Cambiar Nombre</a></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Cambiar Contraseña</a></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal">Eliminar Cuenta</a></li>
-                </ul>
-            </div>
-            <a href="{% url 'usuarios:index' %}" class="btn btn-outline-dark">Volver al inicio</a>
         </div>
     </div>
 
-    <!-- Modal para Cambiar Nombre -->
-    <div class="modal fade" id="editNameModal" tabindex="-1" aria-labelledby="editNameModalLabel" aria-hidden="true">
+    <!-- Modal para editar nombre -->
+    <div class="modal fade" id="editNombreModal" tabindex="-1" aria-labelledby="editNombreModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editNameModalLabel">Cambiar Nombre</h5>
+                    <h5 class="modal-title" id="editNombreModalLabel">Editar Nombre</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="post">
+                <form method="post" action="{% url 'usuarios:gestion_usuarios' %}">
                     {% csrf_token %}
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="user_id" id="editNombreUserId">
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="{{ name_form.nombre.id_for_label }}" class="form-label">Nuevo nombre:</label>
-                            {{ name_form.nombre }}
-                            {% if name_form.nombre.errors %}
-                                <div class="text-danger">{{ name_form.nombre.errors }}</div>
-                            {% endif %}
+                        <div class="form-group">
+                            <label for="editNombre">Nombre completo:</label>
+                            <input type="text" name="nombre" id="editNombre" class="form-control" required>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" name="edit_name" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal para Cambiar Contraseña -->
-    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <!-- Modal para editar correo -->
+    <div class="modal fade" id="editCorreoModal" tabindex="-1" aria-labelledby="editCorreoModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="changePasswordModalLabel">Cambiar Contraseña</h5>
+                    <h5 class="modal-title" id="editCorreoModalLabel">Editar Correo Electrónico</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="post">
+                <form method="post" action="{% url 'usuarios:gestion_usuarios' %}">
                     {% csrf_token %}
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="user_id" id="editCorreoUserId">
                     <div class="modal-body">
-                        {% for field in password_form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
-                                    <div class="text-danger">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        {% if password_form.non_field_errors %}
-                            <div class="text-danger">{{ password_form.non_field_errors }}</div>
-                        {% endif %}
+                        <div class="form-group">
+                            <label for="editCorreo">Correo electrónico:</label>
+                            <input type="email" name="correo" id="editCorreo" class="form-control" required>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" name="change_password" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal para Eliminar Cuenta -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <!-- Modal para editar teléfono -->
+    <div class="modal fade" id="editTelefonoModal" tabindex="-1" aria-labelledby="editTelefonoModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                    <h5 class="modal-title" id="editTelefonoModalLabel">Editar Teléfono</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <form method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" name="delete_account" class="btn btn-danger">Eliminar</button>
-                    </form>
-                </div>
+                <form method="post" action="{% url 'usuarios:gestion_usuarios' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="user_id" id="editTelefonoUserId">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="editTelefono">Número de teléfono:</label>
+                            <input type="text" name="telefono" id="editTelefono" class="form-control" placeholder="Ej: +34 123 456 789">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    {% bootstrap_javascript %}
+
+    <!-- Modal para editar rol -->
+    <div class="modal fade" id="editRolModal" tabindex="-1" aria-labelledby="editRolModalLabel" aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editRolModalLabel">Editar Rol</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{% url 'usuarios:gestion_usuarios' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="user_id" id="editRolUserId">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="rol_edit">Rol:</label>
+                            <select name="rol" id="rol_edit" class="form-control" required>
+                                {% for value, label in usuario.ROL_CHOICES %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Depuración
+        console.log('Script cargado');
+        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
+            button.addEventListener('click', () => {
+                console.log('Botón modal clicado:', button.getAttribute('data-bs-target'));
+            });
+        });
+
+        // Llenar modales
+        document.addEventListener('show.bs.modal', function(event) {
+            var modal = event.target;
+            var button = event.relatedTarget;
+
+            if (modal.id === 'editNombreModal') {
+                var userId = button.getAttribute('data-id');
+                var nombre = button.getAttribute('data-nombre');
+                modal.querySelector('#editNombreUserId').value = userId;
+                modal.querySelector('#editNombre').value = nombre;
+            } else if (modal.id === 'editCorreoModal') {
+                var userId = button.getAttribute('data-id');
+                var correo = button.getAttribute('data-correo');
+                modal.querySelector('#editCorreoUserId').value = userId;
+                modal.querySelector('#editCorreo').value = correo;
+            } else if (modal.id === 'editTelefonoModal') {
+                var userId = button.getAttribute('data-id');
+                var telefono = button.getAttribute('data-telefono');
+                modal.querySelector('#editTelefonoUserId').value = userId;
+                modal.querySelector('#editTelefono').value = telefono;
+            } else if (modal.id === 'editRolModal') {
+                var userId = button.getAttribute('data-id');
+                var rol = button.getAttribute('data-rol');
+                modal.querySelector('#editRolUserId').value = userId;
+                modal.querySelector('#rol_edit').value = rol;
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 </html>

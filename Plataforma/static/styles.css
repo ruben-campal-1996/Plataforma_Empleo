@@ -136,7 +136,7 @@ body {
 .user-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: rgb(213, 213, 213);
+    background-color: rgb(255, 255, 255);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     overflow: hidden;
@@ -146,18 +146,18 @@ body {
 .user-table td {
     padding: 15px;
     text-align: left;
-    border-bottom: 1px solid #b3b3b3;
+    border-bottom: 1px solid #262626;
 }
 
 .user-table th {
-    background-color: #949494;
-    color: #333;
+    background-color: #262626;
+    color: #fefefe;
     font-weight: bold;
     text-transform: uppercase;
     font-size: 14px;
 }
 
-.user-table td {
+.user-table td {        
     color: #555;
     font-size: 14px;
 }
@@ -206,6 +206,32 @@ body {
 
 .close:hover {
     color: #000;
+}
+
+
+/* Detalles del usuario */
+.user-details {
+    max-width: 600px;
+}
+.detail-item {
+    margin-bottom: 2rem;
+}
+.detail-item h5 {
+    margin-bottom: 0.5rem;
+    color: #343a40;
+}
+.detail-item p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+.detail-item hr {
+    margin: 1rem 0;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Evitar conflictos con Bootstrap modales */
+.modal-backdrop {
+    display: none !important;
 }
 
 /* Estilos para mensajes de alerta */
@@ -338,6 +364,19 @@ body {
     height: auto;
     margin-bottom: 10px;
     vertical-align: middle;
+}
+
+.job-container {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+.job-source {
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 10px;
 }
 
 .source-badge {

@@ -105,7 +105,7 @@ def gestion_usuarios(request):
         if action == 'create':
             form = UsuarioCreationForm(request.POST)
             if form.is_valid():
-                user = form.save()  # Guarda todos los campos, incluido 'rol'
+                user = form.save()
                 messages.success(request, 'Usuario creado exitosamente.')
             else:
                 messages.error(request, f'Error al crear el usuario: {form.errors.as_text()}')
@@ -114,14 +114,19 @@ def gestion_usuarios(request):
         elif action == 'edit':
             user_id = request.POST.get('user_id')
             usuario = Usuario.objects.get(id_usuario=user_id)
-            usuario.nombre = request.POST.get('nombre')
-            usuario.correo = request.POST.get('correo')
-            usuario.rol = request.POST.get('rol')
+            if request.POST.get('nombre'):
+                usuario.nombre = request.POST.get('nombre')
+            if request.POST.get('correo'):
+                usuario.correo = request.POST.get('correo')
+            if request.POST.get('telefono') is not None:  # Permitir vaciar teléfono
+                usuario.telefono = request.POST.get('telefono') or None
+            if request.POST.get('rol'):
+                usuario.rol = request.POST.get('rol')
             if request.POST.get('password1'):
                 usuario.set_password(request.POST.get('password1'))
             usuario.save()
-            messages.success(request, 'Usuario actualizado exitosamente.')
-            return redirect('usuarios:gestion_usuarios')
+            messages.success(request, 'Usuario actualizado exitosamente.', extra_tags='edit')
+            return redirect('usuarios:user_details', id_usuario=user_id)
         
         elif action == 'delete':
             user_id = request.POST.get('user_id')
