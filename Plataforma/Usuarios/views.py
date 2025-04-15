@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import UsuarioCreationForm
+from .forms import UsuarioCreationForm, ChangePasswordForm, EditNameForm
 from .models import Usuario
 
 User = get_user_model()
@@ -54,7 +54,43 @@ def logout_view(request):
 
 @login_required
 def user_details(request):
-    return render(request, 'Usuarios/user_details.html')
+    user = request.user
+    
+    if request.method == 'POST' and 'edit_name' in request.POST:
+        name_form = EditNameForm(request.POST, instance=user)
+        if name_form.is_valid():
+            name_form.save()
+            messages.success(request, 'Nombre actualizado correctamente.')
+            return redirect('usuarios:user_details')
+    else:
+        name_form = EditNameForm(instance=user)
+    
+    if request.method == 'POST' and 'change_password' in request.POST:
+        password_form = ChangePasswordForm(request.POST)
+        if password_form.is_valid():
+            current_password = password_form.cleaned_data['current_password']
+            new_password = password_form.cleaned_data['new_password']
+            if user.check_password(current_password):
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Contraseña actualizada correctamente.')
+                return redirect('usuarios:user_details')
+            else:
+                password_form.add_error('current_password', 'Contraseña actual incorrecta.')
+    else:
+        password_form = ChangePasswordForm()
+    
+    if request.method == 'POST' and 'delete_account' in request.POST:
+        user.delete()
+        logout(request)
+        messages.success(request, 'Cuenta eliminada correctamente.')
+        return redirect('usuarios:login')
+    
+    context = {
+        'name_form': name_form,
+        'password_form': password_form,
+    }
+    return render(request, 'Usuarios/user_details.html', context)
 
 
 @login_required

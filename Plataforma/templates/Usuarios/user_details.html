@@ -27,28 +27,121 @@
             </div>
         {% endif %}
     
-        <!-- Detalles del usuario -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-dark text-white">
-                <h2 class="mb-0">Perfil de {{ user.nombre }}</h2>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Nombre:</strong> {{ user.nombre }}</p>
-                        <p><strong>Correo:</strong> {{ user.correo }}</p>
-                        <p><strong>Rol:</strong> {{ user.rol }}</p>
-                        <p><strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Nombre completo:</strong> {{ user.first_name|default:"" }} {{ user.last_name|default:"" }}</p>
-                        <p><strong>Estado:</strong> {% if user.is_active %}Activo{% else %}Inactivo{% endif %}</p>
-                        <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d/m/Y" }}</p>
-                    </div>
+         <!-- Detalles del usuario -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h2 class="mb-0">Perfil de {{ user.nombre|default:user.correo|default:"Usuario" }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Nombre:</strong> {{ user.nombre|default:"No especificado" }}</p>
+                    <p><strong>Correo:</strong> {{ user.correo|default:"No especificado" }}</p>
+                    <p><strong>Rol:</strong> {{ user.rol|default:"No especificado" }}</p>
+                    <p><strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Nombre completo:</strong> {{ user.first_name|default:"" }} {{ user.last_name|default:"" }}</p>
+                    <p><strong>Estado:</strong> {% if user.is_active %}Activo{% else %}Inactivo{% endif %}</p>
+                    <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d/m/Y"|default:"No especificado" }}</p>
                 </div>
             </div>
-            <div class="card-footer text-center">
-                <a href="{% url 'usuarios:index' %}" class="btn btn-outline-dark">Volver al inicio</a>
+        </div>
+        <div class="card-footer text-center">
+            <!-- Dropdown para acciones -->
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Opciones
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editNameModal">Cambiar Nombre</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Cambiar Contraseña</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal">Eliminar Cuenta</a></li>
+                </ul>
+            </div>
+            <a href="{% url 'usuarios:index' %}" class="btn btn-outline-dark">Volver al inicio</a>
+        </div>
+    </div>
+
+    <!-- Modal para Cambiar Nombre -->
+    <div class="modal fade" id="editNameModal" tabindex="-1" aria-labelledby="editNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editNameModalLabel">Cambiar Nombre</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="{{ name_form.nombre.id_for_label }}" class="form-label">Nuevo nombre:</label>
+                            {{ name_form.nombre }}
+                            {% if name_form.nombre.errors %}
+                                <div class="text-danger">{{ name_form.nombre.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" name="edit_name" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cambiar Contraseña -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Cambiar Contraseña</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {% for field in password_form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        {% if password_form.non_field_errors %}
+                            <div class="text-danger">{{ password_form.non_field_errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" name="change_password" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Eliminar Cuenta -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" name="delete_account" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
