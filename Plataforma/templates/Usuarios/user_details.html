@@ -1,0 +1,57 @@
+{% load static django_bootstrap5 pagination_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perfil de {{ user.username }}</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-3">
+        <!-- Barra de navegación (igual que index.html) -->
+        {% if user.is_authenticated %}
+            <div class="text-center mb-4">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ user.nombre }}
+                    </button>
+                    <ul class="dropdown-menu" id="dropdownMenu">
+                        <li><a class="dropdown-item" href="{% url 'usuarios:user_details' %}">Perfil</a></li>
+                        {% if user.is_authenticated and user.rol == 'Administrador' %}
+                            <li><a class="dropdown-item" href="{% url 'usuarios:gestion_usuarios' %}">Vista Admin</a></li>
+                        {% endif %}
+                        <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    
+        <!-- Detalles del usuario -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="mb-0">Perfil de {{ user.nombre }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nombre:</strong> {{ user.nombre }}</p>
+                        <p><strong>Correo:</strong> {{ user.correo }}</p>
+                        <p><strong>Rol:</strong> {{ user.rol }}</p>
+                        <p><strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Nombre completo:</strong> {{ user.first_name|default:"" }} {{ user.last_name|default:"" }}</p>
+                        <p><strong>Estado:</strong> {% if user.is_active %}Activo{% else %}Inactivo{% endif %}</p>
+                        <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'usuarios:index' %}" class="btn btn-outline-dark">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+    {% bootstrap_javascript %}
+</body>
+</html>

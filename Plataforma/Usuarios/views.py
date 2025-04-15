@@ -52,6 +52,10 @@ def logout_view(request):
     logout(request)
     return redirect('usuarios:index')  # /index/
 
+@login_required
+def user_details(request):
+    return render(request, 'Usuarios/user_details.html')
+
 
 @login_required
 def gestion_usuarios(request):
