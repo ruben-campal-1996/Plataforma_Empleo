@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.postgres.fields import ArrayField
 
 class CustomUserManager(UserManager):
     def _create_user(self, correo, password, **extra_fields):
@@ -38,6 +39,12 @@ class Usuario(AbstractUser):
     correo = models.EmailField(max_length=200, unique=True)
     telefono = models.CharField(max_length=15, unique=True, blank=True, null=True)
     rol = models.CharField(max_length=20, choices=ROL_CHOICES, default='Colaborador')
+    habilidades = ArrayField(
+        models.CharField(max_length=100),
+        blank=True,
+        default=list,
+        help_text="Lista de habilidades como: electricista, Baja Tensión, mantenimiento eléctrico"
+    )
     # Campo username requerido por Django, pero opcional en nuestro caso
     username = models.CharField(max_length=150, unique=False, blank=True, null=True, default=None)
     

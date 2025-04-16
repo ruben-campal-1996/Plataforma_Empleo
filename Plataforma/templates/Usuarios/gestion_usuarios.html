@@ -1,238 +1,172 @@
-{% load static django_bootstrap5 %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios</title>
+    {% load django_bootstrap5 %}
     {% bootstrap_css %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="top-bar">
-        <a href="{% url 'usuarios:index' %}" class="btn btn-secondary">Volver</a>
-    </div>
-    <div class="container">
-        <h1>Gestión de Usuarios</h1>
+    <div class="container mt-4">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert {% if message.tags == 'success edit' %}alert-info{% elif message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                    {{ message }}
-                </div>
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
             {% endfor %}
         {% endif %}
-
-        <!-- Botón para abrir el modal de creación -->
-        <button class="btn btn-green" data-bs-toggle="modal" data-bs-target="#createModal">Crear Nuevo Usuario</button>
-
-        <!-- Tabla de usuarios -->
-        <div class="table-container">
-            <table class="user-table">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios %}
-                        <tr>
-                            <td>{{ usuario.nombre }}</td>
-                            <td>{{ usuario.correo }}</td>
-                            <td>{{ usuario.rol }}</td>
-                            <td>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal"
-                                        data-id="{{ usuario.id_usuario }}" data-nombre="{{ usuario.nombre }}"
-                                        data-correo="{{ usuario.correo }}" data-rol="{{ usuario.rol }}">Editar</button>
-                                <button class="btn btn-secondary" onclick="deleteUser('{{ usuario.id_usuario }}')">Eliminar</button>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="4">No hay usuarios registrados.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <h2>Gestión de Usuarios</h2>
+        <div class="mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Crear usuario</button>
         </div>
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.nombre|default:"No especificado" }}</td>
+                        <td>{{ usuario.correo|default:"No especificado" }}</td>
+                        <td>{{ usuario.rol }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ usuario.id_usuario }}"
+                                    data-id="{{ usuario.id_usuario }}"
+                                    data-nombre="{{ usuario.nombre|default:'' }}"
+                                    data-correo="{{ usuario.correo|default:'' }}"
+                                    data-telefono="{{ usuario.telefono|default:'' }}"
+                                    data-rol="{{ usuario.rol }}"
+                                    data-habilidades="{{ usuario.habilidades|join:',' }}">Editar</button>
+                            <form method="post" action="{% url 'usuarios:gestion_usuarios' %}" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a {{ usuario.nombre|default:usuario.correo }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ usuario.id_usuario }}">
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'usuarios:index' %}" class="btn btn-secondary mt-3">Volver</a>
+    </div>
 
-        <!-- Modal para crear usuario -->
-        <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true" data-bs-backdrop="false">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createModalLabel">Crear Nuevo Usuario</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post" action="{% url 'usuarios:gestion_usuarios' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="create">
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="id_nombre">Nombre completo:</label>
-                                {{ create_form.nombre }}
-                                {% if create_form.nombre.errors %}
-                                    <div class="text-danger">{{ create_form.nombre.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group">
-                                <label for="id_correo">Correo electrónico:</label>
-                                {{ create_form.correo }}
-                                {% if create_form.correo.errors %}
-                                    <div class="text-danger">{{ create_form.correo.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group">
-                                <label for="id_telefono">Número de teléfono:</label>
-                                {{ create_form.telefono }}
-                                {% if create_form.telefono.errors %}
-                                    <div class="text-danger">{{ create_form.telefono.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group">
-                                <label for="id_password1">Contraseña:</label>
-                                {{ create_form.password1 }}
-                                {% if create_form.password1.errors %}
-                                    <div class="text-danger">{{ create_form.password1.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group">
-                                <label for="id_password2">Confirmar contraseña:</label>
-                                {{ create_form.password2 }}
-                                {% if create_form.password2.errors %}
-                                    <div class="text-danger">{{ create_form.password2.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group">
-                                <label for="rol_create">Rol:</label>
-                                <select name="rol" id="rol_create" class="form-control" required>
-                                    {% for value, label in roles %}
-                                        <option value="{{ value }}">{{ label }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-green">Crear Usuario</button>
-                        </div>
-                    </form>
+    <!-- Modal para Crear Usuario -->
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Crear Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form method="post" action="{% url 'usuarios:gestion_usuarios' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="createNombre">Nombre:</label>
+                            <input type="text" name="nombre" id="createNombre" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="createCorreo">Correo:</label>
+                            <input type="email" name="correo" id="createCorreo" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createTelefono">Teléfono:</label>
+                            <input type="text" name="telefono" id="createTelefono" class="form-control" placeholder="Ej: +34 123 456 789">
+                        </div>
+                        <div class="mb-3">
+                            <label for="createRol">Rol:</label>
+                            <select name="rol" id="createRol" class="form-control">
+                                {% for choice in form.rol.field.choices %}
+                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createHabilidades">Habilidades:</label>
+                            <input type="text" name="habilidades" id="createHabilidades" class="form-control" placeholder="Ej: electricista, Baja Tensión">
+                            <small class="form-text text-muted">Introduce palabras clave separadas por comas.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 
-        <!-- Modal para editar usuario -->
-        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true" data-bs-backdrop="false">
-            <div class="modal-dialog modal-dialog-centered">
+    <!-- Modales para Editar Usuarios -->
+    {% for usuario in usuarios %}
+        <div class="modal fade" id="editModal{{ usuario.id_usuario }}" tabindex="-1" aria-labelledby="editModalLabel{{ usuario.id_usuario }}" aria-hidden="true">
+            <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editModalLabel">Editar Usuario</h5>
+                        <h5 class="modal-title" id="editModalLabel{{ usuario.id_usuario }}">Editar {{ usuario.nombre|default:usuario.correo }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form method="post" action="{% url 'usuarios:gestion_usuarios' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="edit">
-                        <input type="hidden" name="user_id" id="editUserId">
+                        <input type="hidden" name="user_id" value="{{ usuario.id_usuario }}">
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label for="editNombre">Nombre completo:</label>
-                                <input type="text" name="nombre" id="editNombre" class="form-control" required>
+                            <div class="mb-3">
+                                <label for="nombre{{ usuario.id_usuario }}">Nombre:</label>
+                                <input type="text" name="nombre" id="nombre{{ usuario.id_usuario }}" class="form-control" value="{{ usuario.nombre|default:'' }}">
                             </div>
-                            <div class="form-group">
-                                <label for="editCorreo">Correo electrónico:</label>
-                                <input type="email" name="correo" id="editCorreo" class="form-control" required>
+                            <div class="mb-3">
+                                <label for="correo{{ usuario.id_usuario }}">Correo:</label>
+                                <input type="email" name="correo" id="correo{{ usuario.id_usuario }}" class="form-control" value="{{ usuario.correo|default:'' }}" required>
                             </div>
-                            <div class="form-group">
-                                <label for="editPassword1">Nueva contraseña (opcional):</label>
-                                <input type="password" name="password1" id="editPassword1" class="form-control">
+                            <div class="mb-3">
+                                <label for="telefono{{ usuario.id_usuario }}">Teléfono:</label>
+                                <input type="text" name="telefono" id="telefono{{ usuario.id_usuario }}" class="form-control" value="{{ usuario.telefono|default:'' }}">
                             </div>
-                            <div class="form-group">
-                                <label for="editPassword2">Confirmar nueva contraseña:</label>
-                                <input type="password" name="password2" id="editPassword2" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="rol_edit">Rol:</label>
-                                <select name="rol" id="rol_edit" class="form-control" required>
-                                    {% for value, label in roles %}
-                                        <option value="{{ value }}">{{ label }}</option>
+                            <div class="mb-3">
+                                <label for="rol{{ usuario.id_usuario }}">Rol:</label>
+                                <select name="rol" id="rol{{ usuario.id_usuario }}" class="form-control">
+                                    {% for choice in form.rol.field.choices %}
+                                        <option value="{{ choice.0 }}" {% if choice.0 == usuario.rol %}selected{% endif %}>{{ choice.1 }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="habilidades{{ usuario.id_usuario }}">Habilidades:</label>
+                                <input type="text" name="habilidades" id="habilidades{{ usuario.id_usuario }}" class="form-control" value="{{ usuario.habilidades|join:',' }}">
+                                <small class="form-text text-muted">Introduce palabras clave separadas por comas.</small>
+                            </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-
-        <script>
-            // Depuración
-            console.log('Script cargado');
-            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
-                button.addEventListener('click', () => {
-                    console.log('Botón modal clicado:', button.getAttribute('data-bs-target'));
-                });
-            });
-
-            // Llenar el modal de edición
-            document.addEventListener('show.bs.modal', function(event) {
-                if (event.target.id === 'editModal') {
-                    console.log('Evento show.bs.modal disparado:', event.target.id);
-                    var button = event.relatedTarget;
-                    var userId = button.getAttribute('data-id');
-                    var nombre = button.getAttribute('data-nombre');
-                    var correo = button.getAttribute('data-correo');
-                    var rol = button.getAttribute('data-rol');
-
-                    console.log('Datos:', userId, nombre, correo, rol);
-
-                    var modal = event.target;
-                    modal.querySelector('#editUserId').value = userId;
-                    modal.querySelector('#editNombre').value = nombre;
-                    modal.querySelector('#editCorreo').value = correo;
-                    modal.querySelector('#rol_edit').value = rol;
-                    modal.querySelector('#editPassword1').value = '';
-                    modal.querySelector('#editPassword2').value = '';
+    {% endfor %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('show.bs.modal', function(event) {
+            var modal = event.target;
+            var button = event.relatedTarget;
+            if (modal.id.startsWith('editModal')) {
+                var userId = button.getAttribute('data-id');
+                if (!userId) {
+                    console.error('No se encontró data-id en el botón');
+                    return;
                 }
-            });
-
-            // Eliminar usuario
-            function deleteUser(userId) {
-                if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
-                    var form = document.createElement('form');
-                    form.method = 'post';
-                    form.action = "{% url 'usuarios:gestion_usuarios' %}";
-                    
-                    var csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = 'csrfmiddlewaretoken';
-                    csrfInput.value = '{{ csrf_token }}';
-                    form.appendChild(csrfInput);
-                    
-                    var actionInput = document.createElement('input');
-                    actionInput.type = 'hidden';
-                    actionInput.name = 'action';
-                    actionInput.value = 'delete';
-                    form.appendChild(actionInput);
-                    
-                    var idInput = document.createElement('input');
-                    idInput.type = 'hidden';
-                    idInput.name = 'user_id';
-                    idInput.value = userId;
-                    form.appendChild(idInput);
-                    
-                    document.body.appendChild(form);
-                    form.submit();
-                }
+                modal.querySelector('#nombre' + userId).value = button.getAttribute('data-nombre') || '';
+                modal.querySelector('#correo' + userId).value = button.getAttribute('data-correo') || '';
+                modal.querySelector('#telefono' + userId).value = button.getAttribute('data-telefono') || '';
+                modal.querySelector('#rol' + userId).value = button.getAttribute('data-rol') || '';
+                modal.querySelector('#habilidades' + userId).value = button.getAttribute('data-habilidades') || '';
+                console.log('Modal abierto para usuario:', userId);
             }
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    </div>
+        });
+    </script>
 </body>
 </html>

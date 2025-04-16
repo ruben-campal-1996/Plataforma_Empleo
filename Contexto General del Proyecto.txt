@@ -1,59 +1,52 @@
-Contexto General del Proyecto:
+Contexto General del Proyecto
+Job2Pay es una aplicación web que combina la funcionalidad de búsqueda de empleo con la gestión de perfiles de usuario, ofreciendo una experiencia integrada para usuarios autenticados que desean explorar oportunidades laborales y administrar sus datos personales. El proyecto se estructura en módulos organizados, con directorios dedicados para templates, archivos estáticos, vistas, modelos, y formularios, lo que ha permitido un desarrollo ordenado y escalable. La plataforma utiliza Django como framework principal, aprovechando su robustez para manejar solicitudes del servidor, y Bootstrap 5 para garantizar una interfaz visualmente atractiva y adaptable a diferentes dispositivos.
 
-Estás asistiendo en el desarrollo de una plataforma web llamada "Job2Pay", construida con Django, que tiene como objetivo buscar ofertas de empleo en InfoJobs mediante web scraping con Selenium y presentarlas en un front-end amigable. El sistema permite a los usuarios autenticados buscar trabajos por palabras clave y provincia, mostrando los resultados paginados con detalles como título, enlace, ubicación, modalidad, salario, experiencia y tipo de contrato. El scraping se realiza en tiempo real al enviar un formulario, y el front-end incluye un spinner para indicar el proceso de carga, junto con paginación para navegar entre resultados.
+La aplicación se articula en torno a dos áreas funcionales principales:
 
-Archivos Clave y su Contenido Actual:
+Búsqueda de Empleos: Permite a los usuarios autenticados buscar ofertas de trabajo en InfoJobs mediante web scraping en tiempo real, utilizando Selenium para recolectar datos y presentarlos en un front-end paginado y amigable.
+Gestión de Usuarios: Facilita la visualización y edición de información personal de los usuarios, como nombre, correo, número de teléfono, y rol, a través de vistas dedicadas que combinan funcionalidad y diseño.
+Ambas áreas están soportadas por una interfaz coherente que prioriza la usabilidad, con elementos interactivos que guían al usuario a través de las diferentes funcionalidades, y un backend que asegura la integridad y actualización de los datos.
 
-Analisis_mercado/views.py:
-Contiene las vistas de Django para manejar las solicitudes.
-index(request): Renderiza la página inicial (usuarios/index.html) con un contexto básico (jobs=[], error=None).
-buscar_trabajos(request): Vista principal que realiza el scraping:
-Recibe parámetros GET: q (palabras clave), provincia (código de provincia), y page (página actual, por defecto 1).
-Usa Selenium con Chrome en modo headless para navegar a InfoJobs, ingresar los filtros, y recolectar ofertas de la primera página de resultados.
-Extrae detalles de cada oferta visitando su URL individual (título, enlace, ubicación, modalidad, salario, experiencia, contrato).
-Implementa paginación en el servidor: 10 ofertas por página, calculando total_pages con ceil(total_jobs / 10).
-Devuelve un contexto con jobs (ofertas paginadas), error, total_pages, current_page, keywords, y province.
-Maneja errores con try-except y cierra el navegador en el bloque finally.
-templates/usuarios/index.html:
-Template principal que muestra el front-end:
-Encabezado: Barra superior (top-bar) con opciones de usuario (perfil, logout, admin) si está autenticado, o botones de login/registro si no.
-Formulario: Campos para q (texto) y provincia (select con todas las provincias de España), enviando a buscar_trabajos.
-Contenedor de resultados (#job-list):
-Si hay jobs, muestra cada oferta con título (enlace clicable), ubicación, modalidad, salario, experiencia y contrato.
-Si hay parámetros de búsqueda (request.GET.q o provincia != '0') pero no resultados, muestra un spinner con el mensaje "Este proceso puede durar algunos minutos".
-Si no hay búsqueda ni resultados, muestra "No se encontraron ofertas".
-Paginación (#pagination-top y #pagination-bottom): Listas <ul> con "Previous", números de página, y "Next", ocultas por defecto (d-none).
-JavaScript:
-Usa localStorage (isScraping) para rastrear el estado del scraping.
-Al enviar el formulario, muestra el spinner y oculta resultados/paginación.
-Al cargar la página, verifica si hay resultados (hasJobs), scraping activo (isScraping), o carga inicial, ajustando la visibilidad y mostrando "No se ha realizado ninguna búsqueda" si corresponde.
-static/styles.css:
-Estilos para el front-end:
-Fondo azul (#569fff), barra superior naranja (#ffa55b), y contenedores blancos con bordes redondeados (15px) y sombras.
-#job-list: Contenedor blanco centrado (máx. 600px) para resultados, con ofertas en bloques (div) gris claro.
-#loading-spinner: Contenedor blanco con spinner y mensaje, centrado y estilizado igual que #job-list.
-#pagination-top y #pagination-bottom: Contenedores blancos con paginación centrada, botones redondeados y hover activo.
-Clases d-none y d-block para controlar visibilidad.
-Objetivos Actuales:
+Avances en las Aplicaciones y Funcionalidades
+Búsqueda de Ofertas de Empleo
+Hemos desarrollado una funcionalidad central que permite a los usuarios autenticados buscar ofertas de empleo en InfoJobs utilizando palabras clave y filtros de provincia. Esta característica se activa mediante un formulario interactivo en la página principal de la aplicación, donde los usuarios ingresan términos de búsqueda y seleccionan una provincia de una lista predefinida que cubre todas las regiones de España. Al enviar el formulario, la plataforma inicia un proceso de web scraping en tiempo real, utilizando Selenium con un navegador Chrome en modo headless para navegar por InfoJobs, aplicar los filtros seleccionados, y recolectar información de las ofertas disponibles.
 
-Estamos trabajando en dos mejoras específicas:
+La recolección de datos se realiza de manera detallada, visitando la página individual de cada oferta para extraer información relevante, como el título del puesto, el enlace a la oferta, la ubicación, la modalidad de trabajo (presencial, remoto, híbrido), el rango salarial, los requisitos de experiencia, y el tipo de contrato. Los resultados se presentan en una interfaz clara y estructurada, con cada oferta mostrada como un bloque que destaca los detalles clave y ofrece un enlace clicable para acceder a la fuente original en InfoJobs. Para mejorar la experiencia del usuario, hemos implementado paginación en el servidor, dividiendo los resultados en grupos de diez ofertas por página, lo que permite navegar fácilmente entre múltiples resultados sin sobrecargar la interfaz.
 
-Spinner y Mensaje:
-El spinner con "Este proceso puede durar algunos minutos" debe aparecer solo durante el scraping, no en la carga inicial ni después de los resultados.
-En la carga inicial (sin búsqueda), #job-list debe mostrar "No se ha realizado ninguna búsqueda" en lugar de "No se encontraron ofertas".
-Paginación Visible:
-La paginación (#pagination-top y #pagination-bottom) debe mostrarse después del scraping si hay más de una página (total_pages > 1), con "Previous", números, y "Next" funcionales.
-Estado Actual y Problemas Pendientes:
+La página principal también incluye una barra superior que muestra opciones personalizadas según el estado de autenticación del usuario. Los usuarios autenticados ven accesos rápidos a su perfil, cierre de sesión, o panel administrativo (si corresponde), mientras que los no autenticados tienen opciones para iniciar sesión o registrarse. Esta integración asegura que la funcionalidad de búsqueda esté protegida y accesible solo para usuarios registrados, alineándose con los objetivos de seguridad y personalización de la plataforma.
 
-El scraping en buscar_trabajos funciona y recolecta ofertas correctamente, con paginación en el servidor implementada.
-El front-end (index.html) muestra resultados y el spinner, pero:
-El spinner aparece cuando hay parámetros GET, no solo durante el scraping activo.
-La paginación permanece oculta (d-none) después del scraping, aunque total_pages se calcula.
-Los estilos en styles.css están aplicados y son coherentes, pero la visibilidad dinámica necesita ajustes.
-Tareas Solicitadas:
+Interfaz de Resultados y Experiencia Visual
+La presentación de los resultados de búsqueda se ha diseñado para ser intuitiva y visualmente atractiva, utilizando un contenedor centrado que agrupa las ofertas en bloques bien definidos. Cada bloque utiliza un fondo claro y bordes redondeados para destacar la información, con un diseño que equilibra la densidad de datos con la legibilidad. Los estilos visuales, aplicados a través de un archivo CSS dedicado, incluyen un fondo azul para la página, una barra superior en tonos cálidos, y contenedores blancos con sombras suaves, creando una estética moderna y profesional.
 
-Por favor, ajusta el código para:
+Para mejorar la interacción, hemos incorporado un indicador de carga que aparece durante el proceso de scraping, informando al usuario que la búsqueda está en curso. La interfaz también cuenta con elementos de paginación en la parte superior e inferior de la lista de resultados, diseñados como listas navegables con botones para moverse entre páginas. Estos elementos están estilizados para integrarse con el resto del diseño, utilizando botones redondeados y efectos visuales al interactuar, lo que refuerza la cohesión visual de la aplicación.
 
-Hacer que el spinner sea visible solo mientras el scraping está en curso, usando localStorage u otra lógica para detectarlo con precisión.
-Mostrar "No se ha realizado ninguna búsqueda" en la carga inicial sin búsqueda.
-Asegurar que la paginación sea visible y funcional después del scraping cuando total_pages > 1.
+El front-end utiliza JavaScript para gestionar la visibilidad dinámica de los elementos, asegurando que la interfaz se adapte al estado de la búsqueda. Por ejemplo, la lógica del cliente rastrea si hay una búsqueda activa o si los resultados ya están disponibles, ajustando lo que se muestra en pantalla para mantener la experiencia fluida y relevante. Esta combinación de diseño y funcionalidad hace que la búsqueda de empleos sea accesible y agradable, incluso para usuarios con poca experiencia técnica.
+
+Gestión de Perfiles de Usuario
+Paralelamente, hemos avanzado en la funcionalidad de gestión de usuarios, que permite a los usuarios autenticados visualizar y actualizar su información personal. Esta característica se implementa a través de una vista que lista todos los usuarios registrados, ofreciendo una visión general de los datos disponibles, y una vista detallada que presenta los atributos individuales de un usuario en un formato organizado. La vista de detalles muestra campos como el nombre completo, el correo electrónico, el número de teléfono, y el rol asignado, agrupados en una sección estilizada que utiliza una estructura de tarjeta para mejorar la claridad visual.
+
+La edición de datos es una parte integral de esta funcionalidad, permitiendo a los usuarios modificar campos específicos directamente desde la interfaz. Hemos integrado formularios modales que se activan mediante botones junto a cada campo, proporcionando un espacio dedicado para introducir nuevos valores sin afectar otros datos. Por ejemplo, los usuarios pueden actualizar su número de teléfono abriendo un modal que captura la nueva entrada y la envía al servidor para su procesamiento. Esta interacción se ha diseñado para ser intuitiva, con botones claramente etiquetados y un flujo que minimiza errores accidentales.
+
+La vista de detalles utiliza un diseño compacto y centrado, con un contorno y separadores en un color oscuro que refuerzan la estética profesional de la plataforma. La integración con Bootstrap 5 asegura que la interfaz sea responsive, adaptándose a diferentes tamaños de pantalla mientras mantiene la legibilidad y la accesibilidad. Esta funcionalidad no solo permite a los usuarios mantener su información actualizada, sino que también establece una base para futuras características, como la personalización de perfiles o la gestión de permisos.
+
+Lógica del Backend y Procesamiento de Datos
+En el backend, hemos desarrollado una lógica robusta para soportar tanto la búsqueda de empleos como la gestión de usuarios. Para la búsqueda, la vista principal maneja las solicitudes enviadas desde el formulario, procesando los parámetros de palabras clave y provincia, ejecutando el scraping con Selenium, y organizando los resultados para su presentación. La paginación se implementa en el servidor, calculando el número total de páginas según la cantidad de ofertas recolectadas, lo que optimiza el rendimiento y la navegación.
+
+Para la gestión de usuarios, las vistas correspondientes recuperan datos de la base de datos y los renderizan en la interfaz, asegurando que la información esté siempre sincronizada. La vista de lista de usuarios extrae todos los registros disponibles, mientras que la vista de detalles se enfoca en un usuario específico, identificado mediante su clave primaria. Ambas vistas procesan solicitudes de actualización enviadas desde los formularios modales, actualizando los datos en la base de datos de manera confiable y eficiente.
+
+Hemos incorporado mecanismos para monitorear el comportamiento de la aplicación, especialmente en la interfaz, donde el JavaScript registra interacciones clave, como la activación de modales o el envío de formularios. Esto ha permitido garantizar que los datos fluyan correctamente desde el front-end al backend, manteniendo la consistencia en todas las operaciones.
+
+Experiencia del Usuario y Cohesión
+A lo largo del desarrollo, hemos priorizado la experiencia del usuario, asegurando que tanto la búsqueda de empleos como la gestión de perfiles sean intuitivas y eficientes. La interfaz combina elementos visuales modernos con una navegación clara, utilizando colores, sombras, y bordes redondeados para crear un entorno atractivo. Los formularios, tanto para buscar empleos como para editar datos de usuario, están diseñados para guiar al usuario a través del proceso, con retroalimentación visual que indica acciones en curso, como el scraping o la actualización de datos.
+
+La integración entre las dos áreas funcionales—búsqueda de empleos y gestión de usuarios—se ha logrado mediante una barra superior que ofrece accesos contextuales, adaptándose al estado de autenticación del usuario. Esta cohesión asegura que los usuarios puedan moverse fácilmente entre explorar ofertas y administrar su perfil, creando una experiencia unificada dentro de la plataforma Job2Pay.
+
+Estado Actual de las Funcionalidades
+Job2Pay ha alcanzado un estado avanzado, con funcionalidades completas para la búsqueda de empleos y la gestión de usuarios. Los usuarios autenticados pueden buscar ofertas en InfoJobs ingresando palabras clave y seleccionando provincias, obteniendo resultados detallados presentados en una interfaz paginada con un diseño claro y profesional. La plataforma recolecta y muestra información precisa de cada oferta, facilitando la exploración de oportunidades laborales.
+
+Simultáneamente, los usuarios pueden visualizar y actualizar su información personal a través de una vista detallada que organiza los datos en una tarjeta estilizada, con modales interactivos para editar campos específicos, como el número de teléfono. La lógica del backend soporta estas operaciones, asegurando que los datos se gestionen de manera confiable, mientras que el front-end ofrece una experiencia fluida con elementos dinámicos y retroalimentación visual.
+
+La aplicación combina un diseño moderno con una funcionalidad robusta, integrando la búsqueda de empleos y la gestión de perfiles en una plataforma cohesiva que prioriza la usabilidad y la accesibilidad. Este trabajo refleja un desarrollo iterativo, donde cada componente, desde la interfaz hasta el procesamiento de datos, se ha implementado cuidadosamente para ofrecer una experiencia completa y satisfactoria.
+
+Conclusión
+El desarrollo de Job2Pay ha resultado en una plataforma que permite a los usuarios autenticados buscar ofertas de empleo y gestionar su información personal con facilidad, combinando una interfaz visualmente atractiva con una lógica sólida en el backend. Hemos implementado funcionalidades para recolectar y presentar datos de empleo en tiempo real, junto con vistas interactivas para visualizar y editar perfiles de usuario, logrando una experiencia integrada que satisface las necesidades de los usuarios. Este resumen captura el alcance de nuestro trabajo hasta ahora, proporcionando un punto de partida claro para cualquier discusión o desarrollo futuro relacionado con la plataforma.

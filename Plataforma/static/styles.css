@@ -523,3 +523,20 @@ body {
     height: 2rem;
     margin-top: 10px;
 }
+
+.profile-card {
+    max-width: 600px;
+    margin: 0 auto;
+}
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+.password-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+}
