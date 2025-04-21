@@ -170,6 +170,8 @@
                 <p>No se encontraron ofertas.</p>
             {% endif %}
         </div>
+        
+        
 
         <!-- Pagination bottom -->
         <div id="pagination-bottom" {% if total_pages <= 1 or not total_pages %}class="d-none"{% endif %}>
@@ -202,6 +204,28 @@
             </ul>
         </div>
         
+         <!-- Burbuja del Chat -->
+         {% if user.is_authenticated %}
+         <div id="chat-bubble" onclick="toggleChat()">
+             <i class="bi bi-chat-dots-fill"></i>
+         </div>
+ 
+         <!-- Chatbox -->
+         <div id="chat-window" class="chat-window d-none">
+             <div class="chat-header">
+                 <h5>Asistente Job2Pay</h5>
+                 <span class="close" onclick="toggleChat()">×</span>
+             </div>
+             <div class="chat-body" id="chat-body">
+                 <!-- Mensajes se añadirán aquí dinámicamente -->
+             </div>
+             <div class="chat-footer">
+                 <input type="text" id="chat-input" placeholder="Escribe tu mensaje..." class="form-control">
+                 <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+             </div>
+         </div>
+         {% endif %}
+
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('search-form');
@@ -259,5 +283,6 @@
         </script>
     </div>
     {% bootstrap_javascript %}
+    <script src="{% static 'chat.js' %}"></script>
 </body>
 </html>
