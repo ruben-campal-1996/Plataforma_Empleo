@@ -8,10 +8,9 @@ import os
 
 # Configurar la API de Hugging Face
 HF_API_KEY = os.getenv('HF_API_KEY')
-HF_API_URL = "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct"
-print("Hugging Face API Key cargada:", HF_API_KEY)
-if not HF_API_KEY:
-    print("Error: No se encontró HF_API_KEY en las variables de entorno")
+HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-7B-Instruct-v0.2"
+print("Hugging Face API Key cargada:", HF_API_KEY[:5] + "..." if HF_API_KEY else "No encontrada")
+print("Hugging Face API URL:", HF_API_URL)
 
 @login_required
 @csrf_exempt
@@ -20,6 +19,7 @@ def chat(request):
         try:
             data = json.loads(request.body)
             user_message = data.get('message', '')
+            print("Mensaje recibido:", user_message)
 
             # Guardar mensaje del usuario en la sesión
             chat_history = request.session.get('chat_history', [])
@@ -30,20 +30,23 @@ def chat(request):
                 "Authorization": f"Bearer {HF_API_KEY}",
                 "Content-Type": "application/json"
             }
-            # Formato del prompt para Mistral
             prompt = f"<s>[INST] Actúa como un asistente útil para una plataforma de búsqueda de empleo. Responde a: {user_message} [/INST]"
             payload = {
                 "inputs": prompt,
                 "parameters": {
-                    "max_length": 150,
+                    "max_new_tokens": 150,  # Cambiado a max_new_tokens para Mixtral
                     "temperature": 0.7,
-                    "return_full_text": False  # Evita que el prompt se incluya en la respuesta
+                    "return_full_text": False
                 }
             }
+            print("Enviando solicitud a Hugging Face:", HF_API_URL)
             response = requests.post(HF_API_URL, headers=headers, json=payload)
             response.raise_for_status()
-            # Extraer la respuesta (Mistral devuelve una lista con un diccionario)
+            print("Respuesta cruda de la API:", response.text)
+
+            # Extraer la respuesta
             bot_response = response.json()[0]['generated_text'].strip()
+            print("Respuesta del modelo:", bot_response)
 
             # Guardar respuesta del bot en la sesión
             chat_history.append({'text': bot_response, 'is_user': False})
@@ -53,6 +56,9 @@ def chat(request):
         except requests.exceptions.HTTPError as e:
             print(f"Error HTTP en la vista chat: {str(e)}")
             return JsonResponse({'error': f"Error al conectar con la API: {str(e)}"}, status=500)
+        except KeyError as e:
+            print(f"Error de formato en la respuesta de la API: {str(e)}")
+            return JsonResponse({'error': f"Formato de respuesta inesperado: {str(e)}"}, status=500)
         except Exception as e:
             print(f"Error en la vista chat: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
