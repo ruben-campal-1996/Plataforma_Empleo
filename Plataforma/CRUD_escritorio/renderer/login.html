@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job2Pay - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="bi bi-person-circle login-icon"></i>
+            <h2>Iniciar Sesión</h2>
+        </div>
+        <div class="form-group">
+            <input type="text" id="username" class="form-control" placeholder="Correo">
+        </div>
+        <div class="form-group">
+            <input type="password" id="password" class="form-control" placeholder="Contraseña">
+        </div>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-primary" onclick="login()">Iniciar Sesión</button>
+            <button class="btn btn-secondary" onclick="register()">Registrarse</button>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const result = await ipcRenderer.invoke('login', { username, password });
+            if (result && result.id) {
+                localStorage.setItem('user', JSON.stringify(result));
+                window.location.href = 'index.html';
+            } else {
+                alert('Credenciales incorrectas.');
+            }
+        }
+
+        function register() {
+            alert('Funcionalidad de registro en desarrollo.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,632 @@
+/* Plataforma/static/styles.css */
+html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #569fff;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    overflow-y: auto;
+}
+
+/* Banda superior */
+.top-bar {
+    background-color: #ffa55b;
+    width: 100%;
+    padding: 10px 20px;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin: 0;
+    border-bottom: 3px solid #000000; /* Línea inferior gruesa de color negro */
+}
+
+.container {
+    text-align: center;
+    margin-top: 0;
+    padding: 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Contenedor de login sin bordes redondeados */
+.login-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.login-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.login-icon {
+    font-size: 48px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+    width: 100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.search-form {
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.search-input {
+    border-radius: 25px;
+    border: 1px solid #dfe1e5;
+    padding: 10px 20px;
+    font-size: 16px;
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+    height: 51px;
+}
+
+.search-input:focus {
+    outline: none;
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.4);
+}
+
+.input-group-text {
+    border-radius: 25px 0 0 25px;
+    border: 1px solid #dfe1e5;
+    border-right: none;
+    padding: 12px 15px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+}
+
+.input-group-text .bi-search {
+    font-size: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+/* Estilos adicionales para dispositivos pequeños */
+@media (max-width: 768px) {
+    .login-container {
+        width: 90%;
+    }
+}
+
+/* Contenedor de la tabla */
+.table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+/* Estilo de la tabla */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.user-table th,
+.user-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #262626;
+}
+
+.user-table th {
+    background-color: #262626;
+    color: #fefefe;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.user-table td {        
+    color: #555;
+    font-size: 14px;
+}
+
+.user-table tr:hover {
+    background-color: #f1f3f5;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1002;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    text-align: center;
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    z-index: 10;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* Detalles del usuario */
+.user-details {
+    max-width: 600px;
+}
+.detail-item {
+    margin-bottom: 2rem;
+}
+.detail-item h5 {
+    margin-bottom: 0.5rem;
+    color: #343a40;
+}
+.detail-item p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+.detail-item hr {
+    margin: 1rem 0;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Evitar conflictos con Bootstrap modales */
+.modal-backdrop {
+    display: none !important;
+}
+
+/* Estilos para mensajes de alerta */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.alert.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Configuración base de botones Bootstrap */
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+/* Botón primario */
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-green {
+    background-color: #00bc1f;
+    color: #fff;
+}
+
+.btn-green:hover {
+    background-color: #009b1a;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-green:focus,
+.btn-green:active {
+    background-color: #007a14;
+    box-shadow: 0 0 0 3px rgba(0, 188, 31, 0.5);
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #004085;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+/* Botón secundario */
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary:focus,
+.btn-secondary:active {
+    background-color: #545b62;
+    box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.5);
+}
+
+/* Botón oscuro (usado en el dropdown) */
+.btn-dark {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.btn-dark:hover {
+    background-color: #23272b;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-dark:focus,
+.btn-dark:active {
+    background-color: #1d2124;
+    box-shadow: 0 0 0 3px rgba(52, 58, 64, 0.5);
+}
+
+/* Botones en dropdown */
+.dropdown-item {
+    padding: 8px 20px;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Estilos para el contenedor de trabajos */
+#job-list {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.job-logo {
+    width: 80px; /* Tamaño pequeño */
+    height: auto;
+    margin-bottom: 10px;
+    vertical-align: middle;
+}
+
+.job-container {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+.job-source {
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.source-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+.source-tecnoempleo {
+    background-color: #007bff; /* Azul para Tecnoempleo */
+}
+
+/* Estilos para cada oferta dentro de job-list */
+#job-list > div {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    color: #333;
+    font-size: 16px;
+}
+
+#job-list h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #007bff;
+}
+
+#job-list h3 a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+#job-list h3 a:hover {
+    text-decoration: underline;
+}
+
+#job-list p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* Estilos para la paginación */
+#pagination-top,
+#pagination-bottom {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    justify-content: center;
+    margin: 0;
+}
+
+.page-item {
+    margin: 0 0.25rem;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    color: #007bff;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0.375rem;
+}
+
+.page-link:hover {
+    color: #0056b3;
+    background-color: #e9ecef;
+    border-color: #ddd;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+#loading-spinner {
+    display: block;
+    margin: 20px auto;
+    max-width: 600px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#loading-spinner .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+#loading-spinner p {
+    margin: 5px 0 0 0;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Clases de visibilidad */
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    #job-list,
+    #pagination-top,
+    #pagination-bottom {
+        width: 90%;
+    }
+}
+
+/* Estilos para el contenedor de estado (inicial y durante scraping) */
+#status-container {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Aseguramos que el spinner dentro del contenedor esté bien alineado */
+#status-container .spinner-border {
+    width: 2rem;
+    height: 2rem;
+    margin-top: 10px;
+}
+
+/* Estilos para la burbuja del chat */
+#chat-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #ff8800;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: transform 0.2s ease;
+}
+
+#chat-bubble:hover {
+    transform: scale(1.1);
+}
+
+#chat-bubble i {
+    font-size: 24px;
+}
+
+/* Estilos para el chatbox */
+.chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 350px;
+    max-height: 500px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+}
+
+.chat-header h5 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.chat-body {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+}
+
+.chat-footer {
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.chat-footer input {
+    flex-grow: 1;
+}
+
+.chat-message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.chat-message.user {
+    background-color: #007bff;
+    color: #fff;
+    margin-left: auto;
+    text-align: right;
+}
+
+.chat-message.bot {
+    background-color: #e9ecef;
+    color: #333;
+    margin-right: auto;
+}
+
+/* Responsividad para el chatbox */
+@media (max-width: 768px) {
+    .chat-window {
+        width: 90%;
+        right: 5%;
+        bottom: 80px;
+    }
+}

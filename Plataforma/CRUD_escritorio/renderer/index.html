@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job2Pay - Escritorio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="dropdown">
+            <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown">
+                <span id="user-name"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="logout()">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Escritorio de Gestión - Job2Pay</h1>
+        <div class="btn-group" role="group" aria-label="Vistas de Escritorio">
+            <input type="radio" class="btn-check" name="view" id="btn-analisis" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="btn-analisis" onclick="showView('analisis')">Análisis</label>
+            <input type="radio" class="btn-check" name="view" id="btn-graficos" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btn-graficos" onclick="showView('graficos')">Gráficos</label>
+            <input type="radio" class="btn-check" name="view" id="btn-proyectos" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btn-proyectos" onclick="showView('proyectos')">Proyectos</label>
+        </div>
+        <div id="analisis-view" class="mt-4">
+            <h2>Análisis de Consultas</h2>
+            <div class="table-container">
+                <h3>Búsquedas Más Utilizadas</h3>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Palabra Clave</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-keywords"></tbody>
+                </table>
+            </div>
+            <div class="table-container">
+                <h3>Provincias Más Buscadas</h3>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Provincia</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-provinces"></tbody>
+                </table>
+            </div>
+            <div class="table-container">
+                <h3>Consultas por Día (Últimos 7 Días)</h3>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daily-queries"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="graficos-view" class="mt-4 d-none">
+            <h2>Gráficos Dinámicos</h2>
+            <p>Próximamente: Gráficos circulares y otros con Chart.js.</p>
+        </div>
+        <div id="proyectos-view" class="mt-4 d-none">
+            <h2>Proyectos</h2>
+            <p>Próximamente: Gestión de proyectos.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

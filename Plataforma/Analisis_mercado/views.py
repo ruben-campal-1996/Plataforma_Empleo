@@ -15,6 +15,7 @@ import time
 import random
 from urllib.parse import urljoin
 from math import ceil  # Para calcular el número de páginas
+from CRUD_escritorio.models import ConsultaBusqueda  # Importar el modelo
 
 @login_required
 def index(request):
@@ -293,7 +294,6 @@ def scrape_tecnoempleo(keywords, province):
         except Exception as e:
             print(f"Error al esperar resultados: {str(e)}")
             return
-
         total_height = driver.execute_script("return document.body.scrollHeight")
         current_position = 0
         step = 500
@@ -439,6 +439,15 @@ def buscar_trabajos(request):
         print(f"Scraped: {scraped}")
 
         if keywords and not scraped:
+            # Registrar la consulta en ConsultaBusqueda
+            ConsultaBusqueda.objects.create(
+                usuario=request.user,
+                palabra_clave=keywords,
+                provincia=province,
+                plataforma='infojobs' if 'infojobs' in request.GET.get('source', '').lower() else 'tecnoempleo'
+            )
+            print(f"Consulta registrada: usuario={request.user}, palabra_clave={keywords}, provincia={province}")
+
             infojobs_jobs = []
             tecnoempleo_jobs = []
 
