@@ -48,8 +48,20 @@ INSTALLED_APPS = [
     'Integracion_datos.apps.IntegracionDatosConfig',
     'Recomendacion_IA.apps.RecomendacionIaConfig',
     'CRUD_escritorio.apps.CrudEscritorioConfig',
+    'django_celery_beat',
 
 ]
+
+# Configuración de Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+# Configurar Celery Beat para usar la base de datos como scheduler
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -22,6 +22,9 @@ entorno-virtual/
 #Node
 node_modules/
 
+#Redis
+redis/
+
 # Archivos de migraciones
 # migrations/   # Comentado: no siempre se ignora, depende de si quieres versionarlas
 
