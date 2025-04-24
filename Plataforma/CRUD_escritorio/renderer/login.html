@@ -14,10 +14,10 @@
             <h2>Iniciar Sesión</h2>
         </div>
         <div class="form-group">
-            <input type="text" id="username" class="form-control" placeholder="Correo">
+            <input type="email" id="correo" class="form-control" placeholder="Correo" onkeypress="handleKeyPress(event)">
         </div>
         <div class="form-group">
-            <input type="password" id="password" class="form-control" placeholder="Contraseña">
+            <input type="password" id="password" class="form-control" placeholder="Contraseña" onkeypress="handleKeyPress(event)">
         </div>
         <div class="d-flex justify-content-between">
             <button class="btn btn-primary" onclick="login()">Iniciar Sesión</button>
@@ -29,14 +29,35 @@
         const { ipcRenderer } = require('electron');
 
         async function login() {
-            const username = document.getElementById('username').value;
+            const correo = document.getElementById('correo').value.trim();
             const password = document.getElementById('password').value;
-            const result = await ipcRenderer.invoke('login', { username, password });
-            if (result && result.id) {
-                localStorage.setItem('user', JSON.stringify(result));
-                window.location.href = 'index.html';
-            } else {
-                alert('Credenciales incorrectas.');
+            console.log(`Intentando login: correo=${correo}, password=${password ? '[oculta]' : ''}`);
+
+            if (!correo || !password) {
+                alert('Por favor, ingrese correo y contraseña.');
+                return;
+            }
+
+            try {
+                const result = await ipcRenderer.invoke('login', { correo, password });
+                console.log('Resultado del login:', result);
+
+                if (result && result.id) {
+                    localStorage.setItem('user', JSON.stringify(result));
+                    window.location.href = 'index.html';
+                } else {
+                    alert(result.error || 'Correo o contraseña incorrectos.');
+                }
+            } catch (error) {
+                console.error('Error en ipcRenderer.invoke:', error);
+                alert('Error al conectar con el servidor. Verifique la consola para más detalles.');
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Evitar comportamiento predeterminado (como enviar un formulario)
+                login(); // Llamar a la función login
             }
         }
 
